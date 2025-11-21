@@ -23,5 +23,7 @@ docker run -itd \
   -p 7900:7900 \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/user-data:/app/chromium/user-data \
+  -e LANG=C.UTF-8 \
+  -e UV_DEFAULT_INDEX=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \
-  --name ${name} fullnode/remote-chromium-ubuntu:latest
+  --name ${name} fullnode/remote-chromium-ubuntu
