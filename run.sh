@@ -24,4 +24,4 @@ docker run -itd \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/user-data:/app/chromium/user-data \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \
-  --name ${name} fullnode/remote-chromium-ubuntu
+  --name ${name} fullnode/remote-chromium-ubuntu:latest
