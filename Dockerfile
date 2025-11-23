@@ -45,7 +45,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         update-alternatives --install /usr/bin/editor editor /usr/bin/vim.basic 1 && \
         update-alternatives --install /usr/bin/vi vi /usr/bin/vim.basic 1 && \
         add-apt-repository ppa:xtradeb/apps -y && \
-        apt install -y ca-certificates curl wget htop net-tools vnstat screen tmux git build-essential \
+        apt install -y jq ca-certificates curl wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
         xvfb \
         openbox \
@@ -55,8 +55,8 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         chromium chromium-driver && \
         UV_INSTALLER_GITHUB_BASE_URL=https://gh-proxy.com/https://github.com curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://gh-proxy.com/https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
-        curl -SsL https://cursor.com/install | bash && echo 'export PATH="$HOME/.local/bin:$PATH"' >> /etc/profile && \
-        echo 'source /app/scripts/.env' >> /etc/profile && \
+        curl -SsL https://cursor.com/install | bash && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile && \
+        echo 'source /app/scripts/.env' >> ~/.profile && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
 
