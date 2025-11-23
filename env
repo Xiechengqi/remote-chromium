@@ -1,4 +1,4 @@
-# Usage: cp -f -v env scripts/.env
+# Usage: cp -f -v env .env && ln -f .env scripts/.env
 
 ## Agent CLI
 ## curl -SsL https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent
