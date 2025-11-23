@@ -14,16 +14,19 @@ docker rm -f ${name}
 # -e TERMINAL_USER="admin"
 # -e TERMINAL_PASSWORD="123123"
 # -e CHROMIUM_PROXY_SERVER=socks5://192.168.1.15:1080
-# -e ALL_PROXY=socks5://192.168.1.15:1080
 # -e TERMINAL_RPOXY=socks5://192.168.1.15:1080 \
 
+! ls .env &> /dev/null && touch .env
 docker run -itd \
   --restart=always \
   --privileged \
+  -p 2222:2222 \
   -p 7900:7900 \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/user-data:/app/chromium/user-data \
   -e LANG=C.UTF-8 \
   -e UV_DEFAULT_INDEX=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \
+  -e CHROMIUM_PROXY_SERVER=socks5://192.168.1.15:1080 \
+  -e CHROMIUM_START_URLS="chrome://version,http://localhost:5000" \
   --name ${name} fullnode/remote-chromium-ubuntu
