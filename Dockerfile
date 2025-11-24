@@ -22,6 +22,7 @@ ENV \
         TERMINAL_USER="" \
         TERMINAL_PASSWORD="" \
         TERMINAL_RPOXY="" \
+        TERMINAL_ONCE="false" \
 	CHROMIUM_CLEAN_SINGLETONLOCK="false" \
 	CHROMIUM_USER_DATA_DIR="/app/chromium/user-data" \
 	CHROMIUM_REMOTE_DEBUGGING_PORT="9222" \
