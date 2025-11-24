@@ -1,4 +1,7 @@
 user-data
 projects
-.env
 scripts/.env
+# 忽略所有隐藏文件和目录
+.*
+# 但不忽略 .gitignore 文件
+!.gitignore
