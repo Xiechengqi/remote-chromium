@@ -22,6 +22,7 @@ docker run -itd \
   --privileged \
   -p 2222:2222 \
   -p 7900:7900 \
+  -p 10000-10100:10000-10100 \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/user-data:/app/chromium/user-data \
   -v ${PWD}/projects:/app/projects \
