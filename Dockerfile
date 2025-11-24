@@ -46,7 +46,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         update-alternatives --install /usr/bin/editor editor /usr/bin/vim.basic 1 && \
         update-alternatives --install /usr/bin/vi vi /usr/bin/vim.basic 1 && \
         add-apt-repository ppa:xtradeb/apps -y && \
-        apt install -y jq ca-certificates curl wget htop net-tools vnstat screen tmux git build-essential \
+        apt install -y telnet net-tools iproute2 iputils-ping jq ca-certificates curl wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
         xvfb \
         openbox \
