@@ -64,6 +64,13 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         echo 'source /app/scripts/.env' >> ~/.profile && \
         echo 'export GO111MODULE=on' >> ~/.profile && \
         echo 'export GOPROXY=https://goproxy.cn' >> ~/.profile && \
+        curl -SsL https://gh-proxy.com/https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
+        echo 'NODE_VERSION=20' >> ~/.profile && \
+        echo 'NVM_DIR=/root/.nvm' >> ~/.profile && \
+        source ~/.profile && \
+        echo 'export NVM_NODEJS_ORG_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/nodejs-release/' >> ~/.profile && \
+        npm install -g @google/gemini-cli && \
+        nvm install $NODE_VERSION && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
 
