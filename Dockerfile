@@ -68,6 +68,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         echo 'export NODE_VERSION=20' >> ~/.profile && \
         echo 'export NVM_DIR=/root/.nvm' >> ~/.profile && \
         echo 'export NVM_NODEJS_ORG_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/nodejs-release/' >> ~/.profile && \
+        . ~/.profile && \
         nvm install 20 && \
         npm install -g @google/gemini-cli && \
         mkdir -p /app/logs && \
