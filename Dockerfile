@@ -57,7 +57,12 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         UV_INSTALLER_GITHUB_BASE_URL=https://gh-proxy.com/https://github.com curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://gh-proxy.com/https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
         curl -SsL https://cursor.com/install | bash && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile && \
+        echo 'export GOPATH=/app/golang/path' >> ~/.profile && \
+        echo 'export GOBIN=$GOPATH/bin' >> ~/.profile && \
+        echo 'export PATH=$PATH:/app/golang/bin:$GOBIN' >> ~/.profile && \
         echo 'source /app/scripts/.env' >> ~/.profile && \
+        echo 'export GO111MODULE=on' >> ~/.profile && \
+        echo 'export GOPROXY=https://goproxy.cn' >> ~/.profile && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
 
