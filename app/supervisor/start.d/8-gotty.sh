@@ -5,7 +5,7 @@ source ./common.sh
 
 source ~/.profile
 
-if [ ".${IF_TERMINAL_ON}" = "true"]
+if [ ".${IF_TERMINAL_ON}" = "true" ]
 then
 
 if [ ".${TERMINAL_RPOXY}" != "." ]
