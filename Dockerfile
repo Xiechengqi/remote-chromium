@@ -19,17 +19,21 @@ ENV \
 	NOVNC_TITLE="Chromium" \
 	NOVNC_WEB_INDEX="/app/index" \
 	NOVNC_PORT="7900" \
-        TERMINAL_USER="" \
-        TERMINAL_PASSWORD="" \
-        TERMINAL_RPOXY="" \
-        TERMINAL_ONCE="false" \
 	CHROMIUM_CLEAN_SINGLETONLOCK="false" \
 	CHROMIUM_USER_DATA_DIR="/app/chromium/user-data" \
 	CHROMIUM_REMOTE_DEBUGGING_PORT="9222" \
 	CHROMIUM_START_URLS="chrome://version,http://localhost:2222,http://localhost:5000" \
 	CHROMIUM_LANG="en-US" \
 	CHROMIUM_LOAD_EXTENSION="" \
-	CHROMIUM_PROXY_SERVER=""
+        CHROMIUM_PROXY_SERVER="" \
+        IF_TERMINAL_ON="true" \
+        TERMINAL_USER="" \
+        TERMINAL_PASSWORD="" \
+        TERMINAL_RPOXY="" \
+        TERMINAL_ONCE="false" \
+        IF_DUFS_ON="true" \
+        IF_SOCKS_PROXY="false" \
+        SOCKS_PROXY="SSH_IP:SSH_PORT:SSH_USER:SSH_PASSWORD"
 
 COPY app /app
 
