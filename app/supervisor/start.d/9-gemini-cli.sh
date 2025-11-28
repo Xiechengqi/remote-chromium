@@ -11,8 +11,10 @@ while :
 do
 source ~/.bashrc
 INFO "npm -v" && ! npm -v && EXEC "sleep 1m" && continue
-INFO "npm install -g @google/gemini-cli" && npm install -g @google/gemini-cli
+break
 done
+INFO "npm install -g @google/gemini-cli" && npm install -g @google/gemini-cli
+SLEEP_INFITY $0
 
 else
 SLEEP_INFITY $0
