@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-source ~/.profile
+source ~/.bashrc
 
 export NODE_VERSION=20
 export NVM_DIR=~/.nvm
@@ -11,7 +11,7 @@ export NVM_NODEJS_ORG_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/nodejs-release/
 if [ "${IF_NODEJS_ON}" = "true" ]
 then
 
-cat >> ~/.profile << EOF
+cat >> ~/.bashrc << EOF
 
 ## NodeJs
 export NODE_VERSION=${NODE_VERSION}

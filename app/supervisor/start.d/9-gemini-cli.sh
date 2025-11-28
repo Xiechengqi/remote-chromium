@@ -2,14 +2,14 @@
 
 source /app/supervisor/start.d/common.sh
 
-source ~/.profile
+source ~/.bashrc
 
 if [ "${IF_GEMINI_ON}" = "true" ]
 then
 
 while :
 do
-source ~/.profile
+source ~/.bashrc
 INFO "npm -v" && ! npm -v && EXEC "sleep 1m" && continue
 INFO "npm install -g @google/gemini-cli" && npm install -g @google/gemini-cli
 done

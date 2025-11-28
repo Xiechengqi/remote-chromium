@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-source ~/.profile
+source ~/.bashrc
 
 if [ "${IF_GOLANG_ON}" = "true" ]
 then
@@ -11,7 +11,7 @@ INFO "tar zxvf /app/golang/go1.25.4.linux-amd64.tar.gz --strip-components 1 -C /
 tar zxvf /app/golang/go1.25.4.linux-amd64.tar.gz --strip-components 1 -C /app/golang/
 INFO "rm -f /app/golang/go1.25.4.linux-amd64.tar.gz"
 rm -f /app/golang/go1.25.4.linux-amd64.tar.gz
-cat >> ~/.profile << EOF
+cat >> ~/.bashrc << EOF
 
 ## Golang
 export GOPROXY=https://goproxy.cn
