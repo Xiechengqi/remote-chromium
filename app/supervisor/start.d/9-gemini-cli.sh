@@ -8,9 +8,12 @@ source ~/.profile
 if [ "${IF_GEMINI_ON}" = "true" ]
 then
 
-INFO "nvm install ${NODE_VERSION}" && nvm install ${NODE_VERSION}
+while :
+do
+source ~/.profile
+INFO "npm -v" && ! npm -v && EXEC "sleep 1m" && continue
 INFO "npm install -g @google/gemini-cli" && npm install -g @google/gemini-cli
-SLEEP_INFITY $0
+done
 
 else
 SLEEP_INFITY $0

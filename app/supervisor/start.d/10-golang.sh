@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+BASEPATH=`dirname $(readlink -f ${BASH_SOURCE[0]})` && cd $BASEPATH
+source ./common.sh
+
+source ~/.profile
+
+if [ "${IF_GOLANG_ON}" = "true" ]
+then
+
+INFO "tar zxvf /app/golang/go1.25.4.linux-amd64.tar.gz --strip-components 1 -C /app/golang/"
+tar zxvf /app/golang/go1.25.4.linux-amd64.tar.gz --strip-components 1 -C /app/golang/
+INFO "rm -f /app/golang/go1.25.4.linux-amd64.tar.gz"
+rm -f /app/golang/go1.25.4.linux-amd64.tar.gz
+cat >> ~/.profile << EOF
+
+## Golang
+export GOPROXY=https://goproxy.cn
+export GO111MODULE=on
+export GOPATH=/app/golang/path
+export GOBIN=\$GOPATH/bin
+export PATH=\$PATH:/app/golang/bin:\$GOBIN
+
+EOF
+SLEEP_INFITY $0
+
+else
+SLEEP_INFITY $0
+fi

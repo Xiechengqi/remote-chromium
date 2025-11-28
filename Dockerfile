@@ -34,7 +34,9 @@ ENV \
         IF_DUFS_ON="true" \
         IF_SOCKS_PROXY="false" \
         SOCKS_PROXY="SSH_IP:SSH_PORT:SSH_USER:SSH_PASSWORD" \
-        IF_GEMINI_ON="true"
+        IF_GEMINI_ON="true" \
+        IF_GOLANG_ON="true" \
+        IF_NODEJS_ON="true"
 
 COPY app /app
 
@@ -62,17 +64,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         UV_INSTALLER_GITHUB_BASE_URL=https://gh-proxy.com/https://github.com curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://gh-proxy.com/https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
         curl -SsL https://cursor.com/install | bash && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile && \
-        tar zxvf /app/golang/go1.25.4.linux-amd64.tar.gz --strip-components 1 -C /app/golang/ && rm -f /app/golang/go1.25.4.linux-amd64.tar.gz && \
-        echo 'export GOPATH=/app/golang/path' >> ~/.profile && \
-        echo 'export GOBIN=$GOPATH/bin' >> ~/.profile && \
-        echo 'export PATH=$PATH:/app/golang/bin:$GOBIN' >> ~/.profile && \
         echo 'source /app/scripts/.env' >> ~/.profile && \
-        echo 'export GO111MODULE=on' >> ~/.profile && \
-        echo 'export GOPROXY=https://goproxy.cn' >> ~/.profile && \
-        curl -SsL https://gh-proxy.com/https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash && \
-        echo 'export NODE_VERSION=20' >> ~/.profile && \
-        echo 'export NVM_DIR=/root/.nvm' >> ~/.profile && \
-        echo 'export NVM_NODEJS_ORG_MIRROR=http://mirrors.tuna.tsinghua.edu.cn/nodejs-release/' >> ~/.profile && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
 
