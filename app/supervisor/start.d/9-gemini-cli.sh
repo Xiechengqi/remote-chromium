@@ -10,10 +10,12 @@ then
 while :
 do
 source ~/.bashrc
-INFO "npm -v" && ! npm -v && EXEC "sleep 1m" && continue
+INFO "ls ${NVM_DIR}/versions/node/v*/bin/npm" && ls ${NVM_DIR}/versions/node/v*/bin/npm && continue
 break
 done
-INFO "npm install -g @google/gemini-cli" && npm install -g @google/gemini-cli
+INFO "npm cache clean --force" && npm cache clean --force
+INFO "npm install -g @google/gemini-cli"
+tmux new-session -d -s gemini 'source /root/.bashrc; p; npm install -g @google/gemini-cli'
 SLEEP_INFITY $0
 
 else
