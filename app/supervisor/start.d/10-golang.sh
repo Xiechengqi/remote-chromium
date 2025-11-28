@@ -14,7 +14,7 @@ rm -f /app/golang/go1.25.4.linux-amd64.tar.gz
 cat >> ~/.bashrc << EOF
 
 ## Golang
-export GOPROXY=https://goproxy.cn
+# export GOPROXY=https://goproxy.cn
 export GO111MODULE=on
 export GOPATH=/app/golang/path
 export GOBIN=\$GOPATH/bin

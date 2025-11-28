@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-if [ "${IF_GEMINI_ON}" = "true" ]
+if [ "${IF_CODEX_ON}" = "true" ]
 then
 
 for i in {1..10}
@@ -13,9 +13,9 @@ INFO "check \${NVM_DIR}/versions/node/v*/bin/npm" && ! ls ${NVM_DIR}/versions/no
 break
 done
 
-INFO "tmux new-session -s gemini -d" && tmux new-session -s gemini -d 
-INFO "npm -v && npm install -g @google/gemini-cli && NO_BROWSER=true gemini"
-tmux send-keys -t gemini:0 'npm -v && npm cache clean --force; npm -v && npm install -g @google/gemini-cli && NO_BROWSER=true gemini' C-m
+INFO "tmux new-session -s codex -d" && tmux new-session -s codex -d 
+INFO "npm -v && npm install -g @openai/codex"
+tmux send-keys -t codex:0 'npm -v && npm cache clean --force; npm -v && npm install -g @openai/codex' C-m
 SLEEP_INFITY $0
 
 else
