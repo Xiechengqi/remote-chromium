@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-BASEPATH=`dirname $(readlink -f ${BASH_SOURCE[0]})` && cd $BASEPATH
-source ./common.sh
+source /app/supervisor/start.d/common.sh
 
 source ~/.profile
 
