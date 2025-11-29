@@ -39,7 +39,8 @@ ENV \
         IF_CODEX_ON="true" \
         IF_CLAUDE_ON="true" \
         IF_GOLANG_ON="true" \
-        IF_NODEJS_ON="true"
+        IF_NODEJS_ON="true" \
+        IF_JUPYTER_ON="true"
 
 COPY app /app
 
