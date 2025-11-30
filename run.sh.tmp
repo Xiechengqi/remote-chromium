@@ -28,6 +28,8 @@ docker run -itd \
   -v ${PWD}/user-data:/app/chromium/user-data \
   -v ${PWD}/projects:/app/projects \
   -v ${PWD}/.cursor:/root/.cursor \
+  -v ${PWD}/.gemini:/root/.gemini \
+  -v ${PWD}/.claude:/root/.claude \
   -v /root/.ssh:/root/.ssh \
   -e LANG=C.UTF-8 \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \
