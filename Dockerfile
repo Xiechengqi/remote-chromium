@@ -78,8 +78,6 @@ RUN     apt update && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
 
-
-
 # gotty
 EXPOSE 2222
 # dufs

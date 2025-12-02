@@ -1,1 +1,1 @@
-# https://github.com/sorenisanerd/gotty
+# https://github.com/Xiechengqi/gotty
