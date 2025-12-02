@@ -22,14 +22,19 @@ docker run -itd \
   --restart=always \
   --privileged \
   -p 2222:2222 \
+  -p 7700:7700 \
+  -p 7800:7800 \
   -p 7900:7900 \
-  -p 8000-8100:8000-8100 \
+  -p 8000-8010:8000-8010 \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/user-data:/app/chromium/user-data \
   -v ${PWD}/projects:/app/projects \
+  -v ${PWD}/.cc-switch:/root/.cc-switch \
   -v ${PWD}/.cursor:/root/.cursor \
   -v ${PWD}/.gemini:/root/.gemini \
   -v ${PWD}/.claude:/root/.claude \
+  -v ${PWD}/.gitconfig:/root/.gitconfig \
+  -v ${PWD}/.jupyter:/root/.jupyter \
   -v /root/.ssh:/root/.ssh \
   -e LANG=C.UTF-8 \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \

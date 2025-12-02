@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-if [ "${IF_GEMINI_ON}" = "true" ]
+if [ "${IF_GEMINI_CLI_ON}" = "true" ]
 then
 
 for i in {1..10}

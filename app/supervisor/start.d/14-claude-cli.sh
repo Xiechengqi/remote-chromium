@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-if [ "${IF_CLAUDE_ON}" = "true" ]
+if [ "${IF_CLAUDE_CLI_ON}" = "true" ]
 then
 
 INFO "tmux new-session -s claude -d" && tmux new-session -s claude -d 

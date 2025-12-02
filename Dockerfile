@@ -33,6 +33,12 @@ ENV \
         IDE_NOVNC_PORT="7800" \
         IDE_NOVNC_PASSWORD="" \
         IDE_NOVNC_TITLE="Antigravity" \
+        IF_CCSWITCH_ON="true" \
+        CCSWITCH_DISPLAY=:2 \
+        CCSWITCH_VNC_PORT="5700" \
+        CCSWITCH_NOVNC_PORT="7700" \
+        CCSWITCH_NOVNC_PASSWORD="" \
+        CCSWITCH_NOVNC_TITLE="CCSwitch" \
         IF_TERMINAL_ON="true" \
         TERMINAL_USER="" \
         TERMINAL_PASSWORD="" \
@@ -41,10 +47,10 @@ ENV \
         IF_DUFS_ON="true" \
         IF_SOCKS_PROXY="false" \
         SOCKS_PROXY="SSH_IP:SSH_PORT:SSH_USER:SSH_PASSWORD" \
-        IF_CURSOR_ON="true" \
-        IF_GEMINI_ON="true" \
-        IF_CODEX_ON="true" \
-        IF_CLAUDE_ON="true" \
+        IF_CURSOR_CLI_ON="true" \
+        IF_GEMINI_CLI_ON="true" \
+        IF_CODEX_CLI_ON="true" \
+        IF_CLAUDE_CLI_ON="true" \
         IF_GOLANG_ON="true" \
         IF_NODEJS_ON="true" \
         IF_JUPYTER_ON="true"

@@ -2,7 +2,7 @@
 
 source /app/supervisor/start.d/common.sh
 
-if [ "${IF_CURSOR_ON}" = "true" ]
+if [ "${IF_CURSOR_CLI_ON}" = "true" ]
 then
 
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
