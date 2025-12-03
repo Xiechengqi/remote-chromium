@@ -1054,41 +1054,105 @@ var RFB;
             var length = this._sock.rQshift32();
             if (this._sock.rQwait("ServerCutText", length, 8)) { return false; }
 
-            // Read UTF-8 bytes
-            var utf8Bytes = new Uint8Array(this._sock._rQ.buffer, this._sock._rQi, length);
-            this._sock._rQi += length;
+            // Read UTF-8 bytes directly from buffer
+            var utf8Bytes = this._sock.rQshiftBytes(length);
             
-            // Decode UTF-8 bytes to string
+            // Skip UTF-8 BOM if present (EF BB BF)
+            var startIdx = 0;
+            if (utf8Bytes.length >= 3 && utf8Bytes[0] === 0xEF && 
+                utf8Bytes[1] === 0xBB && utf8Bytes[2] === 0xBF) {
+                startIdx = 3;
+                Util.Debug("Skipped UTF-8 BOM");
+            }
+            
+            var dataToDecode = startIdx > 0 ? utf8Bytes.subarray(startIdx) : utf8Bytes;
+            
+            // Decode UTF-8 bytes to string using the best available method
             var text;
             if (typeof TextDecoder !== 'undefined') {
-                // Use native TextDecoder if available (modern browsers)
-                var decoder = new TextDecoder('utf-8');
-                text = decoder.decode(utf8Bytes);
-            } else {
-                // Manual UTF-8 decoding for older browsers
+                // Use native TextDecoder (most reliable)
+                try {
+                    var decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+                    text = decoder.decode(dataToDecode, { stream: false });
+
+                    // Validate decoded text - replace any null characters
+                    if (text && text.indexOf('\0') !== -1) {
+                        text = text.replace(/\0/g, '');
+                    }
+
+                    Util.Debug("Decoded clipboard text (TextDecoder): " + text.substring(0, 50));
+                } catch (e) {
+                    Util.Error("TextDecoder error: " + e);
+                    text = '';
+                }
+            }
+            
+            // If TextDecoder failed or not available, try Util.decodeUTF8
+            if (!text && typeof Util.decodeUTF8 !== 'undefined') {
+                try {
+                    // Convert bytes to Latin-1 string for Util.decodeUTF8
+                    var latin1String = '';
+                    for (var i = 0; i < dataToDecode.length; i++) {
+                        latin1String += String.fromCharCode(dataToDecode[i] & 0xFF);
+                    }
+                    text = Util.decodeUTF8(latin1String);
+                    Util.Debug("Decoded clipboard text (Util.decodeUTF8): " + text.substring(0, 50));
+                } catch (e) {
+                    Util.Error("Util.decodeUTF8 error: " + e);
+                }
+            }
+            
+            // Last resort: manual UTF-8 decoding
+            if (!text) {
                 text = '';
                 var i = 0;
-                while (i < utf8Bytes.length) {
-                    var byte1 = utf8Bytes[i++];
+                while (i < dataToDecode.length) {
+                    var byte1 = dataToDecode[i++];
                     if (byte1 < 0x80) {
                         text += String.fromCharCode(byte1);
                     } else if ((byte1 >> 5) === 0x06) {
-                        var byte2 = utf8Bytes[i++];
+                        if (i >= dataToDecode.length) break;
+                        var byte2 = dataToDecode[i++];
+                        if ((byte2 & 0xC0) !== 0x80) {
+                            i--;
+                            text += String.fromCharCode(0xFFFD);
+                            continue;
+                        }
                         text += String.fromCharCode(((byte1 & 0x1F) << 6) | (byte2 & 0x3F));
                     } else if ((byte1 >> 4) === 0x0E) {
-                        var byte2 = utf8Bytes[i++];
-                        var byte3 = utf8Bytes[i++];
+                        if (i + 1 >= dataToDecode.length) break;
+                        var byte2 = dataToDecode[i++];
+                        var byte3 = dataToDecode[i++];
+                        if ((byte2 & 0xC0) !== 0x80 || (byte3 & 0xC0) !== 0x80) {
+                            i -= 2;
+                            text += String.fromCharCode(0xFFFD);
+                            continue;
+                        }
                         text += String.fromCharCode(((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F));
                     } else if ((byte1 >> 3) === 0x1E) {
-                        var byte2 = utf8Bytes[i++];
-                        var byte3 = utf8Bytes[i++];
-                        var byte4 = utf8Bytes[i++];
-                        var codePoint = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F);
+                        if (i + 2 >= dataToDecode.length) break;
+                        var byte2 = dataToDecode[i++];
+                        var byte3 = dataToDecode[i++];
+                        var byte4 = dataToDecode[i++];
+                        if ((byte2 & 0xC0) !== 0x80 || (byte3 & 0xC0) !== 0x80 || (byte4 & 0xC0) !== 0x80) {
+                            i -= 3;
+                            text += String.fromCharCode(0xFFFD);
+                            continue;
+                        }
+                        var codePoint = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F));
                         codePoint -= 0x10000;
                         text += String.fromCharCode(0xD800 + (codePoint >> 10));
                         text += String.fromCharCode(0xDC00 + (codePoint & 0x3FF));
+                    } else {
+                        text += String.fromCharCode(0xFFFD);
                     }
                 }
+                Util.Debug("Decoded clipboard text (manual): " + text.substring(0, 50));
+            }
+            
+            if (!text) {
+                text = '';
+                Util.Warn("Failed to decode clipboard text");
             }
             
             this._onClipboard(this, text);
