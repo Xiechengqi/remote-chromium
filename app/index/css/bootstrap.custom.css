@@ -1,65 +1,76 @@
 /* ============================================
-   Modern UI Enhancements for noVNC
+   Simple & Flat Design for noVNC
    ============================================ */
 
-/* Navbar improvements */
+/* Global Styles */
+body {
+  background-color: #f5f6f7;
+  color: #2c3e50;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Navbar - Flat Design */
 .navbar {
   min-height: 0px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
-  border-bottom: 1px solid #e0e0e0;
-  transition: all 0.3s ease;
+  box-shadow: none;
+  background: #ffffff;
+  border-bottom: 2px solid #dfe3e6;
+  transition: background-color 0.2s ease;
 }
 
 .navbar-brand {
   font-weight: 600;
-  color: #333 !important;
+  color: #2c3e50 !important;
   display: flex;
   align-items: center;
   padding: 8px 15px;
 }
 
 .navbar-brand img {
-  transition: transform 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .navbar-brand:hover img {
-  transform: scale(1.05);
+  opacity: 0.9;
 }
 
 #statusIcon {
   margin-left: 8px;
-  transition: all 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-/* Button improvements */
+/* Buttons - Simple Flat Style with Micro-interactions */
 .navbar-btn .btn {
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   border-radius: 4px;
   font-weight: 500;
-  padding: 6px 12px;
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #555;
+  padding: 7px 14px;
+  border: 1px solid #dfe3e6;
+  background: #ffffff;
+  color: #2c3e50;
+  box-shadow: none;
+  text-shadow: none;
 }
 
 .navbar-btn .btn:hover {
-  background: #f0f0f0;
-  border-color: #bbb;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: #f8f9fa;
+  border-color: #bdc3c7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-.navbar-btn .btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+.navbar-btn .btn:active,
+.navbar-btn .btn:focus {
+  background: #ecf0f1;
+  border-color: #bdc3c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  outline: none;
 }
 
 .navbar-btn .btn i {
-  margin-right: 4px;
+  margin-right: 5px;
 }
 
-/* Status icon animations */
+/* Status Icon States */
 #statusIcon.fa-spinner {
   animation: spin 1s linear infinite;
 }
@@ -70,41 +81,43 @@
 }
 
 #statusIcon.fa-check-circle {
-  color: #28a745;
+  color: #27ae60;
 }
 
 #statusIcon.fa-times-circle {
-  color: #dc3545;
+  color: #e74c3c;
 }
 
 #statusIcon.fa-exclamation-circle {
-  color: #ffc107;
+  color: #f39c12;
 }
 
-/* Canvas improvements */
+/* Canvas - Clean Background */
 #rfbScreen {
-  transition: margin-top 0.3s ease;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  background: #f5f5f5;
+  transition: margin-top 0.2s ease;
+  box-shadow: none;
+  background: #ecf0f1;
+  border: 1px solid #dfe3e6;
 }
 
-/* Modal improvements */
+/* Modal - Flat Design with Subtle Depth */
 .modal-content {
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border: 1px solid #dfe3e6;
+  background-color: #ffffff;
 }
 
 .modal-header {
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
-  border-bottom: 1px solid #e0e0e0;
-  border-radius: 8px 8px 0 0;
-  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ecf0f1;
+  border-radius: 4px 4px 0 0;
+  padding: 16px 20px;
 }
 
 .modal-title {
   font-weight: 600;
-  color: #333;
+  color: #2c3e50;
 }
 
 .modal-body {
@@ -112,62 +125,92 @@
 }
 
 .modal-footer {
-  border-top: 1px solid #e0e0e0;
-  padding: 15px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #ecf0f1;
+  padding: 16px 20px;
+  border-radius: 0 0 4px 4px;
 }
 
 .modal-footer .btn {
   border-radius: 4px;
   font-weight: 500;
-  padding: 8px 16px;
-  transition: all 0.2s ease;
+  padding: 8px 18px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  box-shadow: none;
+  text-shadow: none;
 }
 
 .modal-footer .btn-primary {
-  background: linear-gradient(to bottom, #007bff 0%, #0056b3 100%);
-  border: none;
+  background: #3498db;
+  border: 1px solid #3498db;
+  color: #ffffff;
 }
 
 .modal-footer .btn-primary:hover {
-  background: linear-gradient(to bottom, #0056b3 0%, #004085 100%);
+  background: #2980b9 !important;
+  border-color: #2980b9 !important;
+  box-shadow: 0 3px 8px rgba(52, 152, 219, 0.25) !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+.modal-footer .btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(52, 152, 219, 0.2) !important;
 }
 
 .modal-footer .btn-default {
-  background: #fff;
-  border: 1px solid #ddd;
+  background: #ffffff;
+  border: 1px solid #bdc3c7;
+  color: #2c3e50;
 }
 
 .modal-footer .btn-default:hover {
   background: #f8f9fa;
-  border-color: #bbb;
+  border-color: #bdc3c7;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
-/* Form improvements */
+.modal-footer .btn-default:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.modal-header .close {
+  text-shadow: none;
+  opacity: 0.6;
+}
+
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+/* Form Controls - Clean Flat Style with Enhanced Focus */
 .form-control {
   border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid #ced4da;
   padding: 10px 12px;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none;
 }
 
 .form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
   outline: none;
 }
 
 textarea.form-control {
   resize: vertical;
-  font-family: monospace;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
 }
 
-/* Checkbox improvements */
+/* Checkbox */
 .checkbox label {
   font-weight: normal;
   cursor: pointer;
   user-select: none;
+  color: #2c3e50;
 }
 
 .checkbox input[type="checkbox"] {
@@ -175,34 +218,37 @@ textarea.form-control {
   cursor: pointer;
 }
 
-/* Navbar visibility toggle button */
+/* Navbar Visibility Toggle with Micro-interactions */
 #navbarVisibilityToggleButton {
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 1030;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 #navbarVisibilityToggleButton:hover {
   opacity: 1;
-}
-
-#navbarVisibilityToggleButtonIcon {
-  transition: all 0.3s ease;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-
-#navbarVisibilityToggleButtonIcon:hover {
-  background-color: #f0f0f0 !important;
   transform: translateY(2px);
 }
 
-/* Responsive improvements */
+#navbarVisibilityToggleButtonIcon {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #dfe3e6;
+  border-top: none;
+}
+
+#navbarVisibilityToggleButtonIcon:hover {
+  background-color: #f8f9fa !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* Responsive Design */
 @media (min-width: 768px) {
   .navbar-right > li {
     padding-right: 8px;
   }
-  
+
   .navbar-btn .btn {
     min-width: 120px;
   }
@@ -215,27 +261,26 @@ textarea.form-control {
     margin-bottom: 5px;
   }
 
-  /* Make full-width buttons in collapsed navbar. */
   .navbar-btn, .navbar-btn .btn {
     width: 100%;
     margin-bottom: 5px;
   }
-  
+
   .navbar-brand {
     font-size: 16px;
   }
-  
+
   .navbar-brand img {
     height: 32px !important;
     margin-top: 4px;
   }
-  
+
   .modal-dialog {
     margin: 10px;
   }
 }
 
-/* Loading state */
+/* Loading State */
 body.loading {
   cursor: wait;
 }
@@ -244,15 +289,10 @@ body.loading * {
   cursor: wait !important;
 }
 
-/* Smooth transitions */
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-/* Accessibility improvements */
+/* Accessibility */
 .btn:focus,
 .form-control:focus {
-  outline: 2px solid #007bff;
+  outline: 2px solid #3498db;
   outline-offset: 2px;
 }
 
@@ -267,43 +307,51 @@ body.loading * {
   border: 0;
 }
 
-/* Hide class with smooth transition */
 .hide {
   display: none !important;
 }
 
-/* Tooltip improvements */
+/* Tooltips - Flat Style */
 .tooltip {
   font-size: 12px;
 }
 
 .tooltip-inner {
-  background-color: #333;
-  color: #fff;
+  background-color: #2c3e50;
+  color: #ffffff;
   border-radius: 4px;
   padding: 6px 10px;
+  box-shadow: none;
 }
 
-/* Language switcher dropdown */
+/* Dropdown Menu - Flat Style with Subtle Elevation */
+.dropdown-menu {
+  border-radius: 4px;
+  border: 1px solid #dfe3e6;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
 .dropdown-menu .language-option {
-  padding: 8px 20px;
+  padding: 10px 20px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.2s ease;
 }
 
 .dropdown-menu .language-option:hover {
-  background-color: #f5f5f5;
+  background-color: #f5f6f7;
 }
 
 .dropdown-menu .language-option.active {
-  background-color: #e8f4f8;
+  background-color: #e3f2fd;
   font-weight: 500;
+  color: #2980b9;
 }
 
 .dropdown-menu .language-option .language-check {
-  color: #007bff;
+  color: #3498db;
   margin-left: 10px;
 }
 
@@ -315,20 +363,20 @@ body.loading * {
   #navbarLanguageButton .btn {
     width: 100%;
   }
-  
+
   #navbarLanguageButton .dropdown-menu {
     width: 100%;
   }
 }
 
-/* Print styles */
+/* Print Styles */
 @media print {
   .navbar,
   #navbarVisibilityToggleButton,
   .modal {
     display: none !important;
   }
-  
+
   #rfbScreen {
     margin-top: 0 !important;
   }
