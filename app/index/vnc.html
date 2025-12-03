@@ -241,20 +241,7 @@
               </ul>
             </div>
           </li>
-          <!-- Clipboard Encoding -->
-          <li id="navbarClipboardEncodingButton">
-            <div class="btn-group">
-              <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Clipboard Encoding">
-                <i class="fa fa-language fa-fw" aria-hidden="true"></i>
-                <span class="hidden-sm" id="currentClipboardEncodingText">UTF-8</span>
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-right" id="clipboardEncodingDropdown">
-                <li><a href="#" data-encoding="utf-8" class="clipboard-encoding-option"><span>UTF-8</span> <i class="fa fa-check clipboard-encoding-check" style="display:none;"></i></a></li>
-                <li><a href="#" data-encoding="auto" class="clipboard-encoding-option"><span>Auto</span> <i class="fa fa-check clipboard-encoding-check" style="display:none;"></i></a></li>
-              </ul>
-            </div>
-          </li>
+
         </ul>
       </div>
     </div>
@@ -383,36 +370,6 @@
         }
       });
 
-      // Clipboard encoding switcher functionality
-      function updateClipboardEncodingIndicator() {
-        if (!UI.rfb) return;
-        var currentEncoding = UI.rfb.get_clipboardEncoding();
-        $('#currentClipboardEncodingText').text(currentEncoding);
-        
-        // Update checkmarks in dropdown
-        $('.clipboard-encoding-option').each(function() {
-          var $option = $(this);
-          var $check = $option.find('.clipboard-encoding-check');
-          if ($option.data('encoding') === currentEncoding) {
-            $check.show();
-            $option.addClass('active');
-          } else {
-            $check.hide();
-            $option.removeClass('active');
-          }
-        });
-      }
-
-      // Handle encoding selection
-      $('.clipboard-encoding-option').on('click', function(e) {
-        e.preventDefault();
-        var encoding = $(this).data('encoding');
-        UI.setClipboardEncoding(encoding);
-        updateClipboardEncodingIndicator();
-      });
-
-      // Initial update
-      setTimeout(updateClipboardEncodingIndicator, 100);
       
       // Listen for language changes
       document.addEventListener('languageChanged', function(e) {
