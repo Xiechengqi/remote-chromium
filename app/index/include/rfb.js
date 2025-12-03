@@ -135,7 +135,7 @@ var RFB;
             'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
             'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
             'viewportDrag': false,                  // Move the viewport on mouse drags
-            'clipboardEncoding': 'auto',            // Clipboard encoding: 'auto', 'utf-8', 'latin-1', 'gbk', 'gb2312'
+            'clipboardEncoding': 'utf-8',            // Clipboard encoding: 'auto', 'utf-8', 'latin-1', 'gbk', 'gb2312'
 
             // Callback functions
             'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate, statusMsg): state update/change
