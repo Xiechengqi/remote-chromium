@@ -1054,7 +1054,43 @@ var RFB;
             var length = this._sock.rQshift32();
             if (this._sock.rQwait("ServerCutText", length, 8)) { return false; }
 
-            var text = this._sock.rQshiftStr(length);
+            // Read UTF-8 bytes
+            var utf8Bytes = new Uint8Array(this._sock._rQ.buffer, this._sock._rQi, length);
+            this._sock._rQi += length;
+            
+            // Decode UTF-8 bytes to string
+            var text;
+            if (typeof TextDecoder !== 'undefined') {
+                // Use native TextDecoder if available (modern browsers)
+                var decoder = new TextDecoder('utf-8');
+                text = decoder.decode(utf8Bytes);
+            } else {
+                // Manual UTF-8 decoding for older browsers
+                text = '';
+                var i = 0;
+                while (i < utf8Bytes.length) {
+                    var byte1 = utf8Bytes[i++];
+                    if (byte1 < 0x80) {
+                        text += String.fromCharCode(byte1);
+                    } else if ((byte1 >> 5) === 0x06) {
+                        var byte2 = utf8Bytes[i++];
+                        text += String.fromCharCode(((byte1 & 0x1F) << 6) | (byte2 & 0x3F));
+                    } else if ((byte1 >> 4) === 0x0E) {
+                        var byte2 = utf8Bytes[i++];
+                        var byte3 = utf8Bytes[i++];
+                        text += String.fromCharCode(((byte1 & 0x0F) << 12) | ((byte2 & 0x3F) << 6) | (byte3 & 0x3F));
+                    } else if ((byte1 >> 3) === 0x1E) {
+                        var byte2 = utf8Bytes[i++];
+                        var byte3 = utf8Bytes[i++];
+                        var byte4 = utf8Bytes[i++];
+                        var codePoint = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F);
+                        codePoint -= 0x10000;
+                        text += String.fromCharCode(0xD800 + (codePoint >> 10));
+                        text += String.fromCharCode(0xDC00 + (codePoint & 0x3FF));
+                    }
+                }
+            }
+            
             this._onClipboard(this, text);
 
             return true;
@@ -1306,7 +1342,7 @@ var RFB;
             sock._sQlen += 6;
         },
 
-        // TODO(directxman12): make this unicode compatible?
+        // UTF-8 compatible clipboard text sending
         clientCutText: function (sock, text) {
             var buff = sock._sQ;
             var offset = sock._sQlen;
@@ -1317,15 +1353,47 @@ var RFB;
             buff[offset + 2] = 0; // padding
             buff[offset + 3] = 0; // padding
 
-            var n = text.length;
+            // Encode text to UTF-8 bytes
+            var utf8Bytes;
+            if (typeof TextEncoder !== 'undefined') {
+                // Use native TextEncoder if available (modern browsers)
+                var encoder = new TextEncoder();
+                utf8Bytes = encoder.encode(text);
+            } else {
+                // Manual UTF-8 encoding for older browsers
+                utf8Bytes = [];
+                for (var i = 0; i < text.length; i++) {
+                    var code = text.charCodeAt(i);
+                    if (code < 0x80) {
+                        utf8Bytes.push(code);
+                    } else if (code < 0x800) {
+                        utf8Bytes.push(0xC0 | (code >> 6));
+                        utf8Bytes.push(0x80 | (code & 0x3F));
+                    } else if (code < 0xD800 || code >= 0xE000) {
+                        utf8Bytes.push(0xE0 | (code >> 12));
+                        utf8Bytes.push(0x80 | ((code >> 6) & 0x3F));
+                        utf8Bytes.push(0x80 | (code & 0x3F));
+                    } else {
+                        // Surrogate pair
+                        i++;
+                        code = 0x10000 + (((code & 0x3FF) << 10) | (text.charCodeAt(i) & 0x3FF));
+                        utf8Bytes.push(0xF0 | (code >> 18));
+                        utf8Bytes.push(0x80 | ((code >> 12) & 0x3F));
+                        utf8Bytes.push(0x80 | ((code >> 6) & 0x3F));
+                        utf8Bytes.push(0x80 | (code & 0x3F));
+                    }
+                }
+            }
+
+            var n = utf8Bytes.length;
 
             buff[offset + 4] = n >> 24;
             buff[offset + 5] = n >> 16;
             buff[offset + 6] = n >> 8;
             buff[offset + 7] = n;
 
-            for (var i = 0; i < n; i++) {
-                buff[offset + 8 + i] =  text.charCodeAt(i);
+            for (var j = 0; j < n; j++) {
+                buff[offset + 8 + j] = utf8Bytes[j];
             }
 
             sock._sQlen += 8 + n;
