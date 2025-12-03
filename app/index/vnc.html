@@ -62,8 +62,36 @@
   <!-- i18n Support -->
   <script src="js/i18n.js?v=b80cd69e7d"></script>
   <script>
+    // Monkey-patch the broken clientCutText function to correctly handle UTF-8
+    // This fixes sending (pasting) Chinese characters to the server.
+    RFB.messages.clientCutText = function (sock, text) {
+        var buff = sock._sQ;
+        var offset = sock._sQlen;
+
+        buff[offset] = 6; // msg-type
+        buff[offset + 1] = 0; // padding
+        buff[offset + 2] = 0; // padding
+        buff[offset + 3] = 0; // padding
+
+        // Proper UTF-8 encoding
+        var utf8string = unescape(encodeURIComponent(text));
+        var len = utf8string.length;
+
+        buff[offset + 4] = (len >> 24) & 0xFF;
+        buff[offset + 5] = (len >> 16) & 0xFF;
+        buff[offset + 6] = (len >> 8) & 0xFF;
+        buff[offset + 7] = (len) & 0xFF;
+
+        sock._sQlen += 8;
+
+        for (var i = 0; i < len; i++) {
+            buff[sock._sQlen++] = utf8string.charCodeAt(i);
+        }
+        console.log("Patched clientCutText: sending " + len + " UTF-8 bytes");
+    };
+
     $(document).ready(function() {
-      // 强制启用调试日志
+      // Force debug logging
       if (typeof WebUtil !== 'undefined') {
         WebUtil.init_logging('debug');
         console.log('调试日志已启用: debug 级别');
@@ -73,8 +101,17 @@
       I18n.init();
       // Start UI
       UI.start();
+
+      // This is the fix for receiving (copying) Chinese characters from the server.
+      // It sets the expected encoding to UTF-8 as soon as the connection is established.
+      UI.rfbUpdateStateCallbacks.add(function(rfb, state, oldstate, msg) {
+          if (state === 'normal') {
+              console.log("Connection established. Forcing clipboard encoding to utf-8.");
+              UI.rfb.set_clipboardEncoding('utf-8');
+          }
+      });
+
       // Re-apply language after UI starts to ensure all elements are translated
-      // Use setTimeout to ensure UI.start() has completed
       setTimeout(function() {
         I18n.applyLanguage();
       }, 100);
@@ -302,6 +339,20 @@
               </ul>
             </div>
           </li>
+          <!-- Clipboard Encoding -->
+          <li id="navbarClipboardEncodingButton">
+            <div class="btn-group">
+              <button type="button" class="btn btn-default navbar-btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Clipboard Encoding">
+                <i class="fa fa-language fa-fw" aria-hidden="true"></i>
+                <span class="hidden-sm" id="currentClipboardEncodingText">UTF-8</span>
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right" id="clipboardEncodingDropdown">
+                <li><a href="#" data-encoding="utf-8" class="clipboard-encoding-option"><span>UTF-8</span> <i class="fa fa-check clipboard-encoding-check" style="display:none;"></i></a></li>
+                <li><a href="#" data-encoding="auto" class="clipboard-encoding-option"><span>Auto</span> <i class="fa fa-check clipboard-encoding-check" style="display:none;"></i></a></li>
+              </ul>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
@@ -429,6 +480,37 @@
           });
         }
       });
+
+      // Clipboard encoding switcher functionality
+      function updateClipboardEncodingIndicator() {
+        if (!UI.rfb) return;
+        var currentEncoding = UI.rfb.get_clipboardEncoding();
+        $('#currentClipboardEncodingText').text(currentEncoding);
+        
+        // Update checkmarks in dropdown
+        $('.clipboard-encoding-option').each(function() {
+          var $option = $(this);
+          var $check = $option.find('.clipboard-encoding-check');
+          if ($option.data('encoding') === currentEncoding) {
+            $check.show();
+            $option.addClass('active');
+          } else {
+            $check.hide();
+            $option.removeClass('active');
+          }
+        });
+      }
+
+      // Handle encoding selection
+      $('.clipboard-encoding-option').on('click', function(e) {
+        e.preventDefault();
+        var encoding = $(this).data('encoding');
+        UI.setClipboardEncoding(encoding);
+        updateClipboardEncodingIndicator();
+      });
+
+      // Initial update
+      setTimeout(updateClipboardEncodingIndicator, 100);
       
       // Listen for language changes
       document.addEventListener('languageChanged', function(e) {
