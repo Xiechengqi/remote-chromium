@@ -776,7 +776,7 @@ var Display;
             if (this._renderQ.length > 0) {
                 requestAnimFrame(this._scan_renderQ.bind(this));
             }
-        },
+        }
     };
 
     Util.make_properties(Display, [

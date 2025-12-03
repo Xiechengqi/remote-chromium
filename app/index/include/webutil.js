@@ -167,7 +167,7 @@ WebUtil.initSettings = function (callback /*, ...callbackArgs */) {
     if (window.chrome && window.chrome.storage) {
         window.chrome.storage.sync.get(function (cfg) {
             WebUtil.settings = cfg;
-            console.log(WebUtil.settings);
+            Util.Debug("WebUtil settings loaded: " + JSON.stringify(WebUtil.settings));
             if (callback) {
                 callback.apply(this, callbackArgs);
             }

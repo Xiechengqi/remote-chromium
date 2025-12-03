@@ -42,7 +42,7 @@ ENV \
         IF_TERMINAL_ON="true" \
         TERMINAL_USER="" \
         TERMINAL_PASSWORD="" \
-        TERMINAL_RPOXY="" \
+        TERMINAL_PROXY="" \
         TERMINAL_ONCE="false" \
         IF_DUFS_ON="true" \
         IF_SOCKS_PROXY="false" \
@@ -89,7 +89,7 @@ EXPOSE 2222
 # dufs
 EXPOSE 5000
 # novnc
-EXPOSE ${NOVNC_PORT}
+EXPOSE 7700 7800 7900
 
 WORKDIR /app
 

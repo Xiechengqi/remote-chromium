@@ -13,7 +13,7 @@ docker rm -f ${name}
 # -e NOVNC_PASSWORD="123123"
 # -e TERMINAL_USER="admin"
 # -e TERMINAL_PASSWORD="123123"
-# -e TERMINAL_RPOXY=socks5://localhost:1080 \
+# -e TERMINAL_PROXY=socks5://localhost:1080 \
 # -e CHROMIUM_PROXY_SERVER=socks5://192.168.1.15:1080
 # -e UV_DEFAULT_INDEX=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple \
 

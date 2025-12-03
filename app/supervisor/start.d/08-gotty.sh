@@ -7,10 +7,10 @@ source ~/.bashrc
 if [ "${IF_TERMINAL_ON}" = "true" ]
 then
 
-if [ ".${TERMINAL_RPOXY}" != "." ]
+if [ ".${TERMINAL_PROXY}" != "." ]
 then
 cat >> ~/.bashrc << EOF
-alias p="export ALL_PROXY=${TERMINAL_RPOXY};export HTTP_PROXY=${TERMINAL_RPOXY};HTTPS_PROXY=${TERMINAL_RPOXY}"
+alias p="export ALL_PROXY=${TERMINAL_PROXY};export HTTP_PROXY=${TERMINAL_PROXY};HTTPS_PROXY=${TERMINAL_PROXY}"
 alias up="unset ALL_PROXY;unset HTTP_PROXY;unset HTTPS_PROXY"
 EOF
 fi

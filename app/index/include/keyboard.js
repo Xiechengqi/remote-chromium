@@ -464,7 +464,7 @@ function TrackKeyState(next) {
                 state.push(last);
             }
             if (!evt.keysym) {
-                console.log('keypress with no keysym:', evt);
+                Util.Debug('keypress with no keysym: ' + JSON.stringify(evt));
             }
 
             // If we didn't expect a keypress, and already sent a keydown to the VNC server

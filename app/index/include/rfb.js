@@ -882,7 +882,6 @@ var RFB;
                     } else {
                         return this._fail("Authentication failure");
                     }
-                    return false;
                 case 2:
                     return this._fail("Too many auth attempts");
             }
@@ -1175,8 +1174,8 @@ var RFB;
                     //ret = this._encHandlers[this._FBU.encoding]();
                     ret = handler();
                 } catch (ex)  {
-                    console.log("missed " + this._FBU.encoding + ": " + handler);
-                    ret = this._encHandlers[this._FBU.encoding]();
+                    Util.Error("Encoding handler error for " + this._FBU.encoding + ": " + ex);
+                    return this._fail("Encoding handler failed: " + this._FBU.encoding);
                 }
 
                 now = (new Date()).getTime();
@@ -1734,7 +1733,7 @@ var RFB;
                 for (var i = 0; i < 4; i++) {
                     if ((resetStreams >> i) & 1) {
                         this._FBU.zlibs[i].reset();
-                        console.debug('RESET!');
+                        Util.Debug("Reset zlib stream " + i);
                         Util.Info("Reset zlib stream " + i);
                     }
                 }
@@ -1999,7 +1998,7 @@ var RFB;
                     // We have everything, render it
                     this._sock.rQskipBytes(1 + cl_header);  // shift off clt + compact length
                     var img = new Image();
-                    img.src = "data: image/" + cmode +
+                    img.src = "data:image/" + cmode +
                         RFB.extract_data_uri(this._sock.rQshiftBytes(cl_data));
                     this._display.renderQ_push({
                         'type': 'img',
