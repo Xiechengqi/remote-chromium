@@ -135,6 +135,7 @@ var RFB;
             'wsProtocols': ['binary'],              // Protocols to use in the WebSocket connection
             'repeaterID': '',                       // [UltraVNC] RepeaterID to connect to
             'viewportDrag': false,                  // Move the viewport on mouse drags
+            'clipboardEncoding': 'auto',            // Clipboard encoding: 'auto', 'utf-8', 'latin-1', 'gbk', 'gb2312'
 
             // Callback functions
             'onUpdateState': function () { },       // onUpdateState(rfb, state, oldstate, statusMsg): state update/change
@@ -309,6 +310,219 @@ var RFB;
             if (this._rfb_state !== 'normal') { return; }
             RFB.messages.clientCutText(this._sock, text);
             this._sock.flush();
+        },
+
+        // GBK/GB2312 解码方法
+        _decodeGBK: function (bytes) {
+            try {
+                // 简单实现：将字节对转换为 Unicode
+                // 注意：这是一个简化的实现，完整的 GBK 编码表很大
+                var result = '';
+                var i = 0;
+
+                while (i < bytes.length) {
+                    var b1 = bytes[i];
+
+                    // ASCII 字符 (0x00-0x7F)
+                    if (b1 < 0x80) {
+                        result += String.fromCharCode(b1);
+                        i++;
+                    }
+                    // GBK 双字节字符 (0x81-0xFE)
+                    else if (b1 >= 0x81 && b1 <= 0xFE && i + 1 < bytes.length) {
+                        var b2 = bytes[i + 1];
+
+                        // 简单的 GBK 到 Unicode 映射（常见中文字符）
+                        // 这里只实现部分常见字符的转换
+                        var gbkCode = (b1 << 8) | b2;
+                        var unicode = this._gbkToUnicode(gbkCode);
+
+                        if (unicode) {
+                            result += String.fromCharCode(unicode);
+                        } else {
+                            // 无法转换，使用替换字符
+                            result += '�';
+                        }
+
+                        i += 2;
+                    }
+                    // 无效字节
+                    else {
+                        result += '�';
+                        i++;
+                    }
+                }
+
+                return result;
+            } catch (e) {
+                Util.Error("GBK decode error: " + e);
+                return null;
+            }
+        },
+
+        // 简化的 GBK 到 Unicode 映射表（部分常见字符）
+        _gbkToUnicode: function (gbkCode) {
+            // 这里只实现部分映射，实际需要完整的 GBK 编码表
+            var map = {
+                0xB0A1: 0x554A, // 啊
+                0xB0A2: 0x963F, // 阿
+                0xB0A3: 0x57C3, // 埃
+                0xB0A4: 0x6328, // 挨
+                0xB0A5: 0x54CE, // 哎
+                0xB0A6: 0x5509, // 唉
+                0xB0A7: 0x54C0, // 哀
+                // 添加更多常见字符...
+            };
+
+            return map[gbkCode] || 0;
+        },
+
+        // 检测数据是否可能是 UTF-8 编码
+        _isLikelyUTF8: function (bytes) {
+            if (!bytes || bytes.length === 0) return false;
+
+            var i = 0;
+            var utf8Sequences = 0;
+            var totalSequences = 0;
+
+            while (i < bytes.length) {
+                var b1 = bytes[i];
+
+                // 单字节 ASCII (0x00-0x7F)
+                if (b1 < 0x80) {
+                    i++;
+                    continue;
+                }
+
+                // 2字节 UTF-8 序列 (110xxxxx 10xxxxxx)
+                if ((b1 & 0xE0) === 0xC0 && i + 1 < bytes.length) {
+                    var b2 = bytes[i + 1];
+                    if ((b2 & 0xC0) === 0x80) {
+                        utf8Sequences++;
+                        totalSequences++;
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                // 3字节 UTF-8 序列 (1110xxxx 10xxxxxx 10xxxxxx)
+                if ((b1 & 0xF0) === 0xE0 && i + 2 < bytes.length) {
+                    var b2 = bytes[i + 1];
+                    var b3 = bytes[i + 2];
+                    if ((b2 & 0xC0) === 0x80 && (b3 & 0xC0) === 0x80) {
+                        utf8Sequences++;
+                        totalSequences++;
+                        i += 3;
+                        continue;
+                    }
+                }
+
+                // 4字节 UTF-8 序列 (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
+                if ((b1 & 0xF8) === 0xF0 && i + 3 < bytes.length) {
+                    var b2 = bytes[i + 1];
+                    var b3 = bytes[i + 2];
+                    var b4 = bytes[i + 3];
+                    if ((b2 & 0xC0) === 0x80 && (b3 & 0xC0) === 0x80 && (b4 & 0xC0) === 0x80) {
+                        utf8Sequences++;
+                        totalSequences++;
+                        i += 4;
+                        continue;
+                    }
+                }
+
+                // 无效的 UTF-8 序列
+                if (b1 >= 0x80) {
+                    totalSequences++;
+                }
+                i++;
+            }
+
+            // 如果有 UTF-8 序列，且有效序列比例高，则可能是 UTF-8
+            if (totalSequences > 0) {
+                var ratio = utf8Sequences / totalSequences;
+                return ratio > 0.7; // 70% 以上的多字节序列是有效的 UTF-8
+            }
+
+            return false;
+        },
+
+        // 检测数据是否可能是 Latin-1 编码
+        _isLikelyLatin1: function (bytes) {
+            if (!bytes || bytes.length === 0) return false;
+
+            // Latin-1 允许 0x80-0xFF 的字节，但某些值不常用
+            var highBytes = 0;
+            var suspiciousBytes = 0;
+
+            for (var i = 0; i < bytes.length; i++) {
+                var b = bytes[i];
+                if (b >= 0x80) {
+                    highBytes++;
+                    // 检查是否可能是 UTF-8 首字节
+                    if ((b & 0xE0) === 0xC0 || (b & 0xF0) === 0xE0 || (b & 0xF8) === 0xF0) {
+                        suspiciousBytes++;
+                    }
+                }
+            }
+
+            // 如果高字节比例高，且不太可能是 UTF-8 首字节，则可能是 Latin-1
+            var highByteRatio = highBytes / bytes.length;
+            var suspiciousRatio = suspiciousBytes / Math.max(1, highBytes);
+
+            return highByteRatio > 0.1 && suspiciousRatio < 0.3;
+        },
+
+        // 检查文本是否合理（不是误解码的 UTF-8）
+        _isReasonableText: function (text) {
+            if (!text || text.length === 0) return true;
+
+            // 检查是否包含典型的误解码模式
+            var misdecodedPatterns = [
+                /ä½\s*å¥½/,  // 你好 被误解码
+                /æ/,        // 我 被误解码
+                /ç/,        // 的 被误解码
+                /å/,        // 和 被误解码
+            ];
+
+            for (var i = 0; i < misdecodedPatterns.length; i++) {
+                if (misdecodedPatterns[i].test(text)) {
+                    return false;
+                }
+            }
+
+            // 检查是否有太多 Latin-1 扩展字符
+            var latin1Extended = 0;
+            for (var i = 0; i < text.length; i++) {
+                var code = text.charCodeAt(i);
+                if (code >= 0x80 && code <= 0xFF) {
+                    latin1Extended++;
+                }
+            }
+
+            var ratio = latin1Extended / text.length;
+            return ratio < 0.3; // 如果超过 30% 是 Latin-1 扩展字符，可能不合理
+        },
+
+        // 检查 Latin-1 解码结果是否可能是误解码的 UTF-8
+        _isMisdecodedUTF8: function (latin1Text, bytes) {
+            if (!latin1Text || latin1Text.length === 0) return false;
+
+            // 检查是否包含典型的 UTF-8 被 Latin-1 误解码的字符
+            var misdecodedChars = ['ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï'];
+            var misdecodedCount = 0;
+
+            for (var i = 0; i < latin1Text.length; i++) {
+                var char = latin1Text[i];
+                if (misdecodedChars.includes(char)) {
+                    misdecodedCount++;
+                }
+            }
+
+            // 如果有很多误解码字符，且字节看起来像 UTF-8
+            var misdecodedRatio = misdecodedCount / latin1Text.length;
+            var isLikelyUTF8 = this._isLikelyUTF8(bytes);
+
+            return misdecodedRatio > 0.1 && isLikelyUTF8;
         },
 
         // Requests a change of remote desktop size. This message is an extension
@@ -1056,34 +1270,156 @@ var RFB;
 
             // Read UTF-8 bytes directly from buffer
             var utf8Bytes = this._sock.rQshiftBytes(length);
-            
+
+            // Debug: log first few bytes
+            Util.Debug("Clipboard data length: " + length);
+            if (length > 0) {
+                var debugStr = "First 20 bytes (hex): ";
+                for (var i = 0; i < Math.min(20, utf8Bytes.length); i++) {
+                    debugStr += utf8Bytes[i].toString(16).padStart(2, '0') + " ";
+                }
+                Util.Debug(debugStr);
+
+                // 分析字节模式，猜测编码
+                var asciiOnly = true;
+                var utf8Likely = false;
+                var highBytes = 0;
+
+                for (var i = 0; i < Math.min(50, utf8Bytes.length); i++) {
+                    var b = utf8Bytes[i];
+                    if (b > 127) {
+                        asciiOnly = false;
+                        highBytes++;
+                    }
+
+                    // 检查 UTF-8 多字节序列模式
+                    if (b >= 0xC0 && b <= 0xDF && i + 1 < utf8Bytes.length) {
+                        var b2 = utf8Bytes[i + 1];
+                        if (b2 >= 0x80 && b2 <= 0xBF) {
+                            utf8Likely = true;
+                        }
+                    } else if (b >= 0xE0 && b <= 0xEF && i + 2 < utf8Bytes.length) {
+                        var b2 = utf8Bytes[i + 1];
+                        var b3 = utf8Bytes[i + 2];
+                        if (b2 >= 0x80 && b2 <= 0xBF && b3 >= 0x80 && b3 <= 0xBF) {
+                            utf8Likely = true;
+                        }
+                    }
+                }
+
+                Util.Debug("编码分析:");
+                Util.Debug("  ASCII only: " + asciiOnly);
+                Util.Debug("  High bytes (>127): " + highBytes + "/" + Math.min(50, utf8Bytes.length));
+                Util.Debug("  UTF-8 likely: " + utf8Likely);
+
+                // 如果是纯 ASCII，直接转换为字符串查看
+                if (asciiOnly) {
+                    var asciiStr = '';
+                    for (var i = 0; i < Math.min(50, utf8Bytes.length); i++) {
+                        asciiStr += String.fromCharCode(utf8Bytes[i]);
+                    }
+                    Util.Debug("ASCII 文本预览: " + asciiStr);
+                }
+            }
+
             // Skip UTF-8 BOM if present (EF BB BF)
             var startIdx = 0;
-            if (utf8Bytes.length >= 3 && utf8Bytes[0] === 0xEF && 
+            if (utf8Bytes.length >= 3 && utf8Bytes[0] === 0xEF &&
                 utf8Bytes[1] === 0xBB && utf8Bytes[2] === 0xBF) {
                 startIdx = 3;
                 Util.Debug("Skipped UTF-8 BOM");
             }
-            
-            var dataToDecode = startIdx > 0 ? utf8Bytes.subarray(startIdx) : utf8Bytes;
-            
-            // Decode UTF-8 bytes to string using the best available method
-            var text;
-            if (typeof TextDecoder !== 'undefined') {
-                // Use native TextDecoder (most reliable)
-                try {
-                    var decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
-                    text = decoder.decode(dataToDecode, { stream: false });
 
-                    // Validate decoded text - replace any null characters
-                    if (text && text.indexOf('\0') !== -1) {
-                        text = text.replace(/\0/g, '');
+            var dataToDecode = startIdx > 0 ? utf8Bytes.subarray(startIdx) : utf8Bytes;
+
+            // Decode bytes to string using multiple encoding detection
+            var text;
+            var encoding = this._clipboardEncoding || 'auto';
+            Util.Debug("Using clipboard encoding: " + encoding);
+
+            // 如果指定了编码，直接使用该编码
+            if (encoding !== 'auto') {
+                if (typeof TextDecoder !== 'undefined') {
+                    try {
+                        // 首先尝试浏览器原生支持的编码
+                        var decoder = new TextDecoder(encoding);
+                        text = decoder.decode(dataToDecode);
+                        Util.Debug("Decoded with specified encoding (" + encoding + "): " + text.substring(0, 50));
+                    } catch (e) {
+                        Util.Error("Failed to decode with encoding " + encoding + ": " + e);
+                        // 如果浏览器不支持该编码，尝试 GBK/GB2312
+                        if (encoding === 'gbk' || encoding === 'gb2312') {
+                            text = this._decodeGBK(dataToDecode);
+                            if (text) {
+                                Util.Debug("Decoded with GBK/GB2312 (fallback): " + text.substring(0, 50));
+                            }
+                        }
+                    }
+                } else if (encoding === 'gbk' || encoding === 'gb2312') {
+                    // TextDecoder 不可用，使用自定义 GBK 解码
+                    text = this._decodeGBK(dataToDecode);
+                    if (text) {
+                        Util.Debug("Decoded with GBK/GB2312 (custom): " + text.substring(0, 50));
+                    }
+                }
+            }
+
+            // 如果自动检测或指定编码失败，继续自动检测
+            if (!text) {
+                // 首先检测数据是否为有效的 UTF-8
+                var isLikelyUTF8 = this._isLikelyUTF8(dataToDecode);
+                var isLikelyLatin1 = this._isLikelyLatin1(dataToDecode);
+
+                Util.Debug("编码可能性检测:");
+                Util.Debug("  可能是 UTF-8: " + isLikelyUTF8);
+                Util.Debug("  可能是 Latin-1: " + isLikelyLatin1);
+
+                if (typeof TextDecoder !== 'undefined') {
+                    // 优先尝试 UTF-8（如果数据看起来像 UTF-8）
+                    if (isLikelyUTF8 || (!isLikelyLatin1 && isLikelyUTF8)) {
+                        try {
+                            var decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+                            var utf8Text = decoder.decode(dataToDecode);
+
+                            // 检查解码结果是否合理
+                            if (this._isReasonableText(utf8Text)) {
+                                text = utf8Text;
+                                Util.Debug("使用 UTF-8 解码: " + text.substring(0, 50));
+                            } else {
+                                Util.Debug("UTF-8 解码结果不合理，尝试 Latin-1");
+                            }
+                        } catch (e) {
+                            Util.Error("TextDecoder UTF-8 error: " + e);
+                        }
                     }
 
-                    Util.Debug("Decoded clipboard text (TextDecoder): " + text.substring(0, 50));
-                } catch (e) {
-                    Util.Error("TextDecoder error: " + e);
-                    text = '';
+                    // 如果 UTF-8 失败或数据看起来像 Latin-1，尝试 Latin-1
+                    if (!text && (isLikelyLatin1 || !isLikelyUTF8)) {
+                        try {
+                            var decoder = new TextDecoder('iso-8859-1');
+                            var latin1Text = decoder.decode(dataToDecode);
+
+                            // 检查这是否是误解码的 UTF-8（即包含 ä½ å¥½ 这样的字符）
+                            if (this._isMisdecodedUTF8(latin1Text, dataToDecode)) {
+                                Util.Debug("检测到 Latin-1 解码可能是误解码的 UTF-8");
+                                // 尝试用 UTF-8 重新解码
+                                try {
+                                    var decoder = new TextDecoder('utf-8', { fatal: false, ignoreBOM: true });
+                                    text = decoder.decode(dataToDecode);
+                                    Util.Debug("重新用 UTF-8 解码: " + text.substring(0, 50));
+                                } catch (e) {
+                                    // 如果 UTF-8 失败，使用 Latin-1
+                                    text = latin1Text;
+                                    Util.Debug("使用 Latin-1 解码: " + text.substring(0, 50));
+                                }
+                            } else {
+                                text = latin1Text;
+                                Util.Debug("使用 Latin-1 解码: " + text.substring(0, 50));
+                            }
+                        } catch (e) {
+                            Util.Error("TextDecoder Latin-1 error: " + e);
+                        }
+                    }
                 }
             }
             
@@ -1093,10 +1429,16 @@ var RFB;
                     // Convert bytes to Latin-1 string for Util.decodeUTF8
                     var latin1String = '';
                     for (var i = 0; i < dataToDecode.length; i++) {
-                        latin1String += String.fromCharCode(dataToDecode[i] & 0xFF);
+                        latin1String += String.fromCharCode(dataToDecode[i]);
                     }
                     text = Util.decodeUTF8(latin1String);
                     Util.Debug("Decoded clipboard text (Util.decodeUTF8): " + text.substring(0, 50));
+                    // Debug: show character codes
+                    var charCodes = [];
+                    for (var j = 0; j < Math.min(10, text.length); j++) {
+                        charCodes.push(text.charCodeAt(j).toString(16));
+                    }
+                    Util.Debug("First 10 char codes (hex): " + charCodes.join(" "));
                 } catch (e) {
                     Util.Error("Util.decodeUTF8 error: " + e);
                 }
@@ -1139,7 +1481,7 @@ var RFB;
                             text += String.fromCharCode(0xFFFD);
                             continue;
                         }
-                        var codePoint = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F));
+                        var codePoint = ((byte1 & 0x07) << 18) | ((byte2 & 0x3F) << 12) | ((byte3 & 0x3F) << 6) | (byte4 & 0x3F);
                         codePoint -= 0x10000;
                         text += String.fromCharCode(0xD800 + (codePoint >> 10));
                         text += String.fromCharCode(0xDC00 + (codePoint & 0x3FF));
@@ -1148,13 +1490,230 @@ var RFB;
                     }
                 }
                 Util.Debug("Decoded clipboard text (manual): " + text.substring(0, 50));
+                // Debug: show character codes
+                var charCodes = [];
+                for (var j = 0; j < Math.min(10, text.length); j++) {
+                    charCodes.push(text.charCodeAt(j).toString(16));
+                }
+                Util.Debug("First 10 char codes (hex): " + charCodes.join(" "));
             }
             
             if (!text) {
                 text = '';
                 Util.Warn("Failed to decode clipboard text");
             }
-            
+
+            // Debug: check text content before calling callback
+            Util.Debug("Text to send to onClipboard callback:");
+            Util.Debug("  Raw text: " + text);
+            Util.Debug("  Text length: " + text.length);
+            Util.Debug("  Contains backslash-u: " + (text.indexOf('\\u') !== -1));
+            Util.Debug("  Contains backslash: " + (text.indexOf('\\') !== -1));
+
+            // Check if text contains literal \u sequences
+            if (text.indexOf('\\u') !== -1) {
+                Util.Warn("Text contains literal \\u sequences - may be double-encoded");
+                // Try to decode \u sequences
+                try {
+                    var decoded = JSON.parse('"' + text.replace(/"/g, '\\"') + '"');
+                    Util.Debug("After JSON.parse decoding: " + decoded.substring(0, 50));
+                    text = decoded;
+                } catch (e) {
+                    Util.Error("Failed to decode \\u sequences: " + e);
+                }
+            }
+
+            // 检查是否是 UTF-8 被 Latin-1 误解码的模式
+            // 注意：ä½å¥½ 是 "你好" 的 UTF-8 字节被 Latin-1 解码的结果
+            // UTF-8 字节: e4 bd a0 e5 a5 bd
+            // Latin-1 解码: ä½å¥½
+
+            // 更灵活的检测：检查是否包含典型的误解码字符
+            var misdecodedChars = ['ä', 'å', 'æ', 'ç', 'è', 'é', 'ê', 'ë', 'ì', 'í', 'î', 'ï'];
+            var misdecodedCharCount = 0;
+
+            for (var i = 0; i < text.length; i++) {
+                var char = text[i];
+                if (misdecodedChars.includes(char)) {
+                    misdecodedCharCount++;
+                }
+            }
+
+            // 如果文本中超过 20% 的字符是典型的误解码字符，则认为是误解码
+            var misdecodedRatio = misdecodedCharCount / Math.max(1, text.length);
+            var isMisdecoded = misdecodedRatio > 0.2;
+
+            Util.Debug("误解码字符检测:");
+            Util.Debug("  文本长度: " + text.length);
+            Util.Debug("  误解码字符数: " + misdecodedCharCount);
+            Util.Debug("  误解码比例: " + misdecodedRatio.toFixed(2));
+            Util.Debug("  判断为误解码: " + isMisdecoded);
+                /æ°/,        // 数
+                /è¿/,        // 返
+                /å/,        // 回
+                /å¼/,        // 值
+                /è¯­/,        // 语
+                /è¨/,        // 言
+                /ç¼/,        // 编
+                /ç /,        // 码
+                /è§£/,        // 解
+                /ç /,        // 码
+                /é/,        // 错
+                /è¯¯/,        // 误
+                /ä¿®/,        // 修
+                /å¤/,        // 复
+                /æµ/,        // 测
+                /è¯/,        // 试
+                /ç»/,        // 结
+                /æ/,        // 果
+                /æ/,        // 文
+                /æ¡£/,        // 档
+                /è¯´/,        // 说
+                /æ/,        // 明
+                /å/,        // 功
+                /è½/,        // 能
+                /æ§/,        // 控
+                /å¶/,        // 制
+                /ç³»/,        // 系
+                /ç»/,        // 统
+                /è®¾/,        // 设
+                /å¤/,        // 备
+                /è¿/,        // 连
+                /æ¥/,        // 接
+                /é/,        // 通
+                /ä¿¡/,        // 信
+                /å/,        // 协
+                /è®®/,        // 议
+                /æ°/,        // 数
+                /æ®/,        // 据
+                /åº/,        // 库
+                /æ/,        // 服
+                /å¡/,        // 务
+                /å¨/,        // 器
+                /å®¢/,        // 客
+                /æ·/,        // 户
+                /ç«¯/,        // 端
+                /ç½/,        // 网
+                /é¡µ/,        // 页
+                /å¾/,        // 图
+                /ç/,        // 片
+                /é³/,        // 音
+                /é¢/,        // 频
+                /è§/,        // 视
+                /é¢/,        // 频
+                /å¨/,        // 动
+                /ç»/,        // 画
+                /æ/,        // 手
+                /æº/,        // 机
+                /çµ/,        // 电
+                /è/,        // 脑
+                /å¹³/,        // 平
+                /æ¿/,        // 板
+                /è®¾/,        // 设
+                /è®¡/,        // 计
+                /å¼/,        // 开
+                /å/,        // 发
+                /è½¯/,        // 软
+                /ä»¶/,        // 件
+                /ç¡¬/,        // 硬
+                /ä»¶/,        // 件
+                /ç½/,        // 网
+                /ç»/,        // 络
+                /å®/,        // 安
+                /å¨/,        // 全
+                /ä¿/,        // 保
+                /é/,        // 障
+                /ç®¡/,        // 管
+                /ç/,        // 理
+                /æ/,        // 服
+                /å¡/,        // 务
+                /å¨/,        // 器
+                /å®¢/,        // 客
+                /æ·/,        // 户
+                /ç«¯/,        // 端
+                /ç½/,        // 网
+                /é¡µ/,        // 页
+                /å¾/,        // 图
+                /ç/,        // 片
+                /é³/,        // 音
+                /é¢/,        // 频
+                /è§/,        // 视
+                /é¢/,        // 频
+                /å¨/,        // 动
+                /ç»/,        // 画
+                /æ/,        // 手
+                /æº/,        // 机
+                /çµ/,        // 电
+                /è/,        // 脑
+                /å¹³/,        // 平
+                /æ¿/,        // 板
+                /è®¾/,        // 设
+                /è®¡/,        // 计
+                /å¼/,        // 开
+                /å/,        // 发
+                /è½¯/,        // 软
+                /ä»¶/,        // 件
+                /ç¡¬/,        // 硬
+                /ä»¶/,        // 件
+                /ç½/,        // 网
+                /ç»/,        // 络
+                /å®/,        // 安
+                /å¨/,        // 全
+                /ä¿/,        // 保
+                /é/,        // 障
+                /ç®¡/,        // 管
+                /ç/,        // 理
+            ];
+
+            var isMisdecoded = false;
+            for (var i = 0; i < misdecodedPatterns.length; i++) {
+                if (misdecodedPatterns[i].test(text)) {
+                    isMisdecoded = true;
+                    Util.Warn("检测到 UTF-8 被 Latin-1 误解码模式: " + misdecodedPatterns[i].toString());
+                    break;
+                }
+            }
+
+            // 如果检测到误解码模式，尝试修复
+            if (isMisdecoded && typeof TextEncoder !== 'undefined' && typeof TextDecoder !== 'undefined') {
+                Util.Warn("尝试修复 UTF-8 被 Latin-1 误解码的文本...");
+
+                // 方法1: 将误解码的文本重新编码为 Latin-1 字节，然后用 UTF-8 解码
+                try {
+                    // TextEncoder 默认使用 UTF-8，所以需要手动转换为 Latin-1 字节
+                    var latin1Bytes = new Uint8Array(text.length);
+                    for (var i = 0; i < text.length; i++) {
+                        var code = text.charCodeAt(i);
+                        // Latin-1 只能表示 0-255，但误解码的字符可能超过这个范围
+                        latin1Bytes[i] = code & 0xFF;
+                    }
+
+                    Util.Debug("Latin-1 字节 (十六进制): ");
+                    var hexStr = "";
+                    for (var i = 0; i < Math.min(20, latin1Bytes.length); i++) {
+                        hexStr += latin1Bytes[i].toString(16).padStart(2, '0') + " ";
+                    }
+                    Util.Debug(hexStr);
+
+                    // 将 Latin-1 字节转换为 UTF-8 字符串
+                    var decoder = new TextDecoder('utf-8');
+                    var fixedText = decoder.decode(latin1Bytes);
+
+                    Util.Debug("修复前: " + text.substring(0, 50));
+                    Util.Debug("修复后: " + fixedText.substring(0, 50));
+
+                    // 检查修复后的文本是否合理
+                    if (this._isReasonableText(fixedText)) {
+                        text = fixedText;
+                        Util.Info("成功修复 UTF-8 被 Latin-1 误解码的文本");
+                    } else {
+                        Util.Warn("修复后的文本不合理，保持原文本");
+                    }
+                } catch (e) {
+                    Util.Error("修复 UTF-8 被 Latin-1 误解码失败: " + e);
+                }
+            }
+
             this._onClipboard(this, text);
 
             return true;
@@ -1338,6 +1897,7 @@ var RFB;
         ['wsProtocols', 'rw', 'arr'],           // Protocols to use in the WebSocket connection
         ['repeaterID', 'rw', 'str'],            // [UltraVNC] RepeaterID to connect to
         ['viewportDrag', 'rw', 'bool'],         // Move the viewport on mouse drags
+        ['clipboardEncoding', 'rw', 'str'],     // Clipboard encoding: 'auto', 'utf-8', 'latin-1', 'gbk', 'gb2312'
 
         // Callback functions
         ['onUpdateState', 'rw', 'func'],        // onUpdateState(rfb, state, oldstate, statusMsg): RFB state update/change
@@ -1417,6 +1977,49 @@ var RFB;
             buff[offset + 2] = 0; // padding
             buff[offset + 3] = 0; // padding
 
+            // Debug: log original text
+            Util.Debug("=== clientCutText 开始 ===");
+            Util.Debug("原始文本: " + text);
+            Util.Debug("文本长度: " + text.length + " 字符");
+
+            // 显示前10个字符的字符码
+            Util.Debug("前10个字符码 (十六进制):");
+            for (var i = 0; i < Math.min(10, text.length); i++) {
+                Util.Debug("  [" + i + "]: 0x" + text.charCodeAt(i).toString(16) + " (" + text.charCodeAt(i) + ")");
+            }
+
+            Util.Debug("包含 \\\\u 序列: " + (text.indexOf('\\u') !== -1));
+            Util.Debug("包含反斜杠: " + (text.indexOf('\\') !== -1));
+
+            // 检查文本是否已经是 Unicode 转义序列（如 \u63d0\u793a\u8bcd）
+            // 注意：这里要区分是字面量的 \u 序列还是正常的 Unicode 字符
+            if (text.indexOf('\\u') !== -1) {
+                // 检查是否是真正的字面量 \u 序列（如 "\\u63d0\\u793a\\u8bcd"）
+                // 而不是包含 "u" 字符的正常文本
+                var hasLiteralUnicode = /\\u[0-9a-fA-F]{4}/.test(text);
+                Util.Debug("检测到字面量 \\\\u 序列: " + hasLiteralUnicode);
+
+                if (hasLiteralUnicode) {
+                    Util.Warn("输入文本包含字面量 \\\\u 转义序列 - 尝试解码");
+                    try {
+                        var decoded = JSON.parse('"' + text.replace(/"/g, '\\"') + '"');
+                        Util.Debug("从 \\\\u 序列解码后: " + decoded.substring(0, 50));
+
+                        // 显示解码后的字符码
+                        Util.Debug("解码后前10个字符码:");
+                        for (var i = 0; i < Math.min(10, decoded.length); i++) {
+                            Util.Debug("  [" + i + "]: 0x" + decoded.charCodeAt(i).toString(16));
+                        }
+
+                        text = decoded;
+                    } catch (e) {
+                        Util.Error("解码 \\\\u 序列失败: " + e);
+                    }
+                } else {
+                    Util.Debug("文本包含 '\\\\u' 但不是有效的 Unicode 转义序列，保持原样");
+                }
+            }
+
             // Encode text to UTF-8 bytes
             var utf8Bytes;
             if (typeof TextEncoder !== 'undefined') {
@@ -1447,6 +2050,15 @@ var RFB;
                         utf8Bytes.push(0x80 | (code & 0x3F));
                     }
                 }
+            }
+
+            // Debug: log encoded bytes
+            if (utf8Bytes.length > 0) {
+                var debugStr = "Encoded bytes (first 20): ";
+                for (var i = 0; i < Math.min(20, utf8Bytes.length); i++) {
+                    debugStr += utf8Bytes[i].toString(16).padStart(2, '0') + " ";
+                }
+                Util.Debug(debugStr);
             }
 
             var n = utf8Bytes.length;

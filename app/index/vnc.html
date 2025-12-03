@@ -62,7 +62,13 @@
   <!-- i18n Support -->
   <script src="js/i18n.js?v=b80cd69e7d"></script>
   <script>
-    $(document).ready(function() { 
+    $(document).ready(function() {
+      // 强制启用调试日志
+      if (typeof WebUtil !== 'undefined') {
+        WebUtil.init_logging('debug');
+        console.log('调试日志已启用: debug 级别');
+      }
+
       // Initialize i18n first
       I18n.init();
       // Start UI
@@ -73,6 +79,138 @@
         I18n.applyLanguage();
       }, 100);
     });
+
+    // 剪贴板调试函数 - 可在控制台直接调用
+    window.debugClipboard = {
+      // 设置剪贴板编码
+      setEncoding: function(encoding) {
+        if (window.UI && UI.rfb && UI.rfb.set_clipboardEncoding) {
+          UI.rfb.set_clipboardEncoding(encoding);
+          console.log("剪贴板编码已设置为: " + encoding);
+          return true;
+        } else {
+          console.log("无法设置编码: UI.rfb 未初始化或不支持 set_clipboardEncoding");
+          return false;
+        }
+      },
+
+      // 获取当前编码
+      getEncoding: function() {
+        if (window.UI && UI.rfb && UI.rfb.get_clipboardEncoding) {
+          var encoding = UI.rfb.get_clipboardEncoding();
+          console.log("当前剪贴板编码: " + encoding);
+          return encoding;
+        } else {
+          console.log("无法获取编码");
+          return null;
+        }
+      },
+      // 测试编码
+      testEncoding: function(text) {
+        if (!text) text = "测试中文：你好世界！";
+        console.log("=== 编码测试 ===");
+        console.log("原始文本:", text);
+        console.log("长度:", text.length, "字符");
+
+        // 字符码
+        console.log("字符码 (十六进制):");
+        for (var i = 0; i < Math.min(10, text.length); i++) {
+          console.log("  [" + i + "]: 0x" + text.charCodeAt(i).toString(16));
+        }
+
+        if (typeof TextEncoder !== 'undefined') {
+          var encoder = new TextEncoder();
+          var bytes = encoder.encode(text);
+          console.log("UTF-8 编码字节 (十六进制):");
+          var hexStr = "";
+          for (var i = 0; i < Math.min(20, bytes.length); i++) {
+            hexStr += bytes[i].toString(16).padStart(2, '0') + " ";
+          }
+          console.log("  " + hexStr);
+          console.log("总字节数:", bytes.length);
+        }
+      },
+
+      // 测试解码
+      testDecoding: function(hexBytes) {
+        console.log("=== 解码测试 ===");
+        var bytes = hexBytes.split(/\s+/).map(function(h) {
+          return parseInt(h, 16);
+        });
+        var uint8Array = new Uint8Array(bytes);
+        console.log("字节数:", bytes.length);
+        console.log("十六进制:", hexBytes);
+
+        if (typeof TextDecoder !== 'undefined') {
+          // UTF-8
+          try {
+            var decoder = new TextDecoder('utf-8');
+            var text = decoder.decode(uint8Array);
+            console.log("UTF-8 解码结果:", text);
+          } catch (e) {
+            console.log("UTF-8 解码错误:", e);
+          }
+
+          // Latin-1
+          try {
+            var decoder = new TextDecoder('iso-8859-1');
+            var text = decoder.decode(uint8Array);
+            console.log("Latin-1 解码结果:", text);
+          } catch (e) {
+            console.log("Latin-1 解码错误:", e);
+          }
+        }
+      },
+
+      // 测试当前 RFB 实例
+      testRFB: function() {
+        if (window.UI && UI.rfb) {
+          console.log("=== RFB 实例测试 ===");
+          console.log("RFB 状态:", UI.rfb_state);
+          console.log("onClipboard 回调:", UI.rfb.get_onClipboard ? "已设置" : "未设置");
+
+          // 模拟发送剪贴板数据
+          var testText = "测试文本";
+          console.log("测试发送文本:", testText);
+          if (UI.rfb.clipboardPasteFrom) {
+            UI.rfb.clipboardPasteFrom(testText);
+            console.log("已调用 clipboardPasteFrom");
+          }
+        } else {
+          console.log("UI.rfb 未初始化");
+        }
+      },
+
+      // 解码 Unicode 转义序列
+      decodeUnicode: function(escapedText) {
+        console.log("=== Unicode 转义解码 ===");
+        console.log("输入:", escapedText);
+
+        try {
+          var decoded = JSON.parse('"' + escapedText.replace(/"/g, '\\"') + '"');
+          console.log("JSON.parse 解码:", decoded);
+          return decoded;
+        } catch (e) {
+          console.log("JSON.parse 错误:", e);
+
+          // 手动解码
+          var decoded = escapedText.replace(/\\u([0-9a-fA-F]{4})/g, function(match, hex) {
+            return String.fromCharCode(parseInt(hex, 16));
+          });
+          console.log("手动解码:", decoded);
+          return decoded;
+        }
+      }
+    };
+
+    console.log("剪贴板调试函数已加载:");
+    console.log("  debugClipboard.setEncoding('utf-8') - 设置剪贴板编码");
+    console.log("  debugClipboard.getEncoding() - 获取当前编码");
+    console.log("  debugClipboard.testEncoding('文本') - 测试编码");
+    console.log("  debugClipboard.testDecoding('e6 b5 8b e8 af 95') - 测试解码");
+    console.log("  debugClipboard.testRFB() - 测试 RFB 实例");
+    console.log("  debugClipboard.decodeUnicode('\\\\u63d0\\\\u793a\\\\u8bcd') - 解码 Unicode 转义");
+    console.log("可用编码: 'auto', 'utf-8', 'latin-1', 'gbk', 'gb2312'");
   </script>
 
 </head>
