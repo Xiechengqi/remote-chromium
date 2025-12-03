@@ -63,8 +63,15 @@
   <script src="js/i18n.js?v=b80cd69e7d"></script>
   <script>
     $(document).ready(function() { 
+      // Initialize i18n first
       I18n.init();
-      UI.start(); 
+      // Start UI
+      UI.start();
+      // Re-apply language after UI starts to ensure all elements are translated
+      // Use setTimeout to ensure UI.start() has completed
+      setTimeout(function() {
+        I18n.applyLanguage();
+      }, 100);
     });
   </script>
 

@@ -17,7 +17,7 @@ var I18n = (function() {
             'status.loading': '加载中...',
             
             // Navigation buttons
-            'nav.hideable': '可隐藏导航栏',
+            'nav.hideable': '隐藏导航栏',
             'nav.autoHide': '自动隐藏',
             'nav.drag': '拖拽',
             'nav.fullscreen': '全屏',
@@ -28,7 +28,7 @@ var I18n = (function() {
             'nav.showHide': '显示/隐藏导航栏',
             
             // Tooltips
-            'tooltip.hideable': '使导航栏可隐藏',
+            'tooltip.hideable': '隐藏导航栏',
             'tooltip.autoHide': '自动隐藏导航栏',
             'tooltip.drag': '拖拽应用程序显示区域',
             'tooltip.fullscreen': '切换全屏显示',
@@ -139,7 +139,9 @@ var I18n = (function() {
         } catch (e) {
             // localStorage not available, use detected language
         }
-        return detectLanguage();
+        var detectedLang = detectLanguage();
+        // Ensure detected language exists in translations
+        return translations[detectedLang] ? detectedLang : defaultLang;
     }
     
     // Save language preference to localStorage
@@ -160,18 +162,25 @@ var I18n = (function() {
     // Get translation
     function t(key, lang) {
         lang = lang || currentLang;
-        var keys = key.split('.');
-        var value = translations[lang];
         
-        for (var i = 0; i < keys.length; i++) {
-            if (value && typeof value === 'object') {
-                value = value[keys[i]];
-            } else {
-                return key; // Return key if translation not found
-            }
+        // Ensure lang exists in translations, fallback to default
+        if (!translations[lang]) {
+            lang = defaultLang;
         }
         
-        return value || key;
+        var langTranslations = translations[lang];
+        if (!langTranslations || typeof langTranslations !== 'object') {
+            return key; // Return key if translation not found
+        }
+        
+        // Direct lookup - translations use dot-separated keys as object keys
+        var value = langTranslations[key];
+        
+        // Return translation if found, otherwise return key
+        if (value !== undefined && value !== null && value !== '') {
+            return value;
+        }
+        return key;
     }
     
     // Set language
@@ -205,11 +214,24 @@ var I18n = (function() {
             return;
         }
         
+        // Ensure currentLang is valid
+        if (!translations[currentLang]) {
+            currentLang = defaultLang;
+        }
+        
         // Update elements with data-i18n attribute
         $('[data-i18n]').each(function() {
             var $el = $(this);
             var key = $el.attr('data-i18n');
+            if (!key) return;
+            
             var text = t(key);
+            
+            // Skip if translation returned the key itself (translation not found)
+            if (text === key) {
+                console.warn('Translation not found for key: ' + key + ' (lang: ' + currentLang + ')');
+                return; // Don't update if translation not found
+            }
             
             // Check if it's a placeholder or title attribute
             var attr = $el.attr('data-i18n-attr');
@@ -224,6 +246,7 @@ var I18n = (function() {
                         $el.val(text);
                     }
                 } else {
+                    // Replace all content with translated text
                     $el.text(text);
                 }
             }
@@ -233,8 +256,11 @@ var I18n = (function() {
         $('[data-i18n-title]').each(function() {
             var $el = $(this);
             var key = $el.attr('data-i18n-title');
-            $el.attr('title', t(key));
-            $el.attr('aria-label', t(key));
+            if (!key) return;
+            
+            var text = t(key);
+            $el.attr('title', text);
+            $el.attr('aria-label', text);
         });
         
         // Update HTML lang attribute
