@@ -1,22 +1,335 @@
-/* Allow navbar slide effect. */
+/* ============================================
+   Modern UI Enhancements for noVNC
+   ============================================ */
+
+/* Navbar improvements */
 .navbar {
   min-height: 0px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+  border-bottom: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
 }
 
+.navbar-brand {
+  font-weight: 600;
+  color: #333 !important;
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+}
+
+.navbar-brand img {
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+  transform: scale(1.05);
+}
+
+#statusIcon {
+  margin-left: 8px;
+  transition: all 0.3s ease;
+}
+
+/* Button improvements */
+.navbar-btn .btn {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #555;
+}
+
+.navbar-btn .btn:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-btn .btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.navbar-btn .btn i {
+  margin-right: 4px;
+}
+
+/* Status icon animations */
+#statusIcon.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+#statusIcon.fa-check-circle {
+  color: #28a745;
+}
+
+#statusIcon.fa-times-circle {
+  color: #dc3545;
+}
+
+#statusIcon.fa-exclamation-circle {
+  color: #ffc107;
+}
+
+/* Canvas improvements */
+#rfbScreen {
+  transition: margin-top 0.3s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  background: #f5f5f5;
+}
+
+/* Modal improvements */
+.modal-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border: none;
+}
+
+.modal-header {
+  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 1px solid #e0e0e0;
+  border-radius: 8px 8px 0 0;
+  padding: 15px 20px;
+}
+
+.modal-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  border-top: 1px solid #e0e0e0;
+  padding: 15px 20px;
+}
+
+.modal-footer .btn {
+  border-radius: 4px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-primary {
+  background: linear-gradient(to bottom, #007bff 0%, #0056b3 100%);
+  border: none;
+}
+
+.modal-footer .btn-primary:hover {
+  background: linear-gradient(to bottom, #0056b3 0%, #004085 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+.modal-footer .btn-default {
+  background: #fff;
+  border: 1px solid #ddd;
+}
+
+.modal-footer .btn-default:hover {
+  background: #f8f9fa;
+  border-color: #bbb;
+}
+
+/* Form improvements */
+.form-control {
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+  outline: none;
+}
+
+textarea.form-control {
+  resize: vertical;
+  font-family: monospace;
+}
+
+/* Checkbox improvements */
+.checkbox label {
+  font-weight: normal;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* Navbar visibility toggle button */
+#navbarVisibilityToggleButton {
+  transition: all 0.3s ease;
+  z-index: 1030;
+  opacity: 0.8;
+}
+
+#navbarVisibilityToggleButton:hover {
+  opacity: 1;
+}
+
+#navbarVisibilityToggleButtonIcon {
+  transition: all 0.3s ease;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+#navbarVisibilityToggleButtonIcon:hover {
+  background-color: #f0f0f0 !important;
+  transform: translateY(2px);
+}
+
+/* Responsive improvements */
 @media (min-width: 768px) {
   .navbar-right > li {
-    padding-right:10px;
+    padding-right: 8px;
+  }
+  
+  .navbar-btn .btn {
+    min-width: 120px;
   }
 }
 
 @media (max-width: 767px) {
   .navbar-nav > li {
-    padding-left:10px;
-    padding-right:10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 5px;
   }
 
   /* Make full-width buttons in collapsed navbar. */
-  .navbar-btn,.navbar-btn .btn {
-    width:100%;
+  .navbar-btn, .navbar-btn .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .navbar-brand {
+    font-size: 16px;
+  }
+  
+  .navbar-brand img {
+    height: 32px !important;
+    margin-top: 4px;
+  }
+  
+  .modal-dialog {
+    margin: 10px;
+  }
+}
+
+/* Loading state */
+body.loading {
+  cursor: wait;
+}
+
+body.loading * {
+  cursor: wait !important;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Accessibility improvements */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  border: 0;
+}
+
+/* Hide class with smooth transition */
+.hide {
+  display: none !important;
+}
+
+/* Tooltip improvements */
+.tooltip {
+  font-size: 12px;
+}
+
+.tooltip-inner {
+  background-color: #333;
+  color: #fff;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+/* Language switcher dropdown */
+.dropdown-menu .language-option {
+  padding: 8px 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-menu .language-option:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-menu .language-option.active {
+  background-color: #e8f4f8;
+  font-weight: 500;
+}
+
+.dropdown-menu .language-option .language-check {
+  color: #007bff;
+  margin-left: 10px;
+}
+
+#navbarLanguageButton .btn {
+  min-width: 100px;
+}
+
+@media (max-width: 767px) {
+  #navbarLanguageButton .btn {
+    width: 100%;
+  }
+  
+  #navbarLanguageButton .dropdown-menu {
+    width: 100%;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  #navbarVisibilityToggleButton,
+  .modal {
+    display: none !important;
+  }
+  
+  #rfbScreen {
+    margin-top: 0 !important;
   }
 }
