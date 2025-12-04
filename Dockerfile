@@ -81,14 +81,11 @@ RUN     apt update && \
         libpcre3-dev libssl-dev zlib1g-dev libgd-dev \
         chromium chromium-driver \
         antigravity && \
-        git clone https://github.com/Xiechengqi/novnc-web.git && \
         curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
         echo 'source /app/scripts/.env' >> ~/.bashrc && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
-
-COPY novnc-web /app/index
 
 # gotty
 EXPOSE 2222
