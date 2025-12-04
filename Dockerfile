@@ -72,7 +72,7 @@ RUN     apt update && \
         curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | gpg --dearmor -o /etc/apt/keyrings/antigravity-repo-key.gpg && \
         echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" >> /etc/apt/sources.list.d/antigravity.list && \
         apt update && \
-        apt install -y sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
+        apt install -y tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
         xvfb \
         openbox \
