@@ -5,6 +5,9 @@
 
 source /app/supervisor/start.d/common.sh
 
+if [ "${IF_IDE_ON}" = "true" ]
+then
+
 # 设置 DISPLAY
 export DISPLAY=${IDE_DISPLAY}
 
@@ -40,3 +43,9 @@ EXEC "sleep 10"
 done
 
 SLEEP_INFITY $0
+
+else
+
+SLEEP_INFITY $0
+
+fi
