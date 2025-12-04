@@ -53,7 +53,10 @@ ENV \
         IF_CLAUDE_CLI_ON="true" \
         IF_GOLANG_ON="true" \
         IF_NODEJS_ON="true" \
-        IF_JUPYTER_ON="true"
+        IF_JUPYTER_ON="true" \
+        IF_YPROMPT_ON="true" \
+        YPROMPT_USERNAME="admin" \
+        YPROMPT_PASSWORD="admin123"
 
 COPY app /app
 
