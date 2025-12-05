@@ -18,6 +18,17 @@ INFO "Waiting for CCSwitch X server..."
 EXEC "sleep 1"
 done
 
+# # 等待 claude、codex、gemini 就绪
+# for i in {1..10}
+# do
+# source <(grep 'export NVM_DIR=' ~/.bashrc)
+# [ ".${NVM_DIR}" = "." ] && EXEC "sleep 1m" && continue
+# INFO "check /root/.local/bin/claude" && ! ls /root/.local/bin/claude && EXEC "sleep 1m" && continue
+# INFO "check \${NVM_DIR}/versions/node/v*/bin/codex" && ! ls ${NVM_DIR}/versions/node/v*/bin/codex && EXEC "sleep 1m" && continue
+# INFO "check \${NVM_DIR}/versions/node/v*/bin/gemini" && ! ls ${NVM_DIR}/versions/node/v*/bin/gemini && EXEC "sleep 1m" && continue
+# break
+# done
+
 INFO "Installing CCSwitch ..."
 
 EXEC "mkdir -p /app/cc-switch"
