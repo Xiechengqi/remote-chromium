@@ -56,7 +56,9 @@ ENV \
         IF_JUPYTER_ON="true" \
         IF_YPROMPT_ON="true" \
         YPROMPT_USERNAME="admin" \
-        YPROMPT_PASSWORD="admin123"
+        YPROMPT_PASSWORD="admin123" \
+        IF_NPS_ON="false" \
+        IF_NPC_ON="false"
 
 COPY app /app
 
