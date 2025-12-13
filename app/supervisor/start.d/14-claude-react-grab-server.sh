@@ -13,11 +13,14 @@ INFO "check \${NVM_DIR}/versions/node/v*/bin/npm" && ! ls ${NVM_DIR}/versions/no
 break
 done
 
+export NPM=$(ls ${NVM_DIR}/versions/node/v*/bin/npm)
 export AGENT="claude-code"
 export PORT="4567"
-INFO "npm install -g @react-grab/${AGENT}" && npm install -g @react-grab/${AGENT}
-! ls ${NVM_DIR}/versions/node/v*/bin/react-grab-${AGENT} &> /dev/null && SLEEP_INFITY $0
-react-grab-${AGENT}
+
+INFO "tmux new-session -s ${AGENT}-react -d" && tmux new-session -s ${AGENT}-react -d
+INFO "${NPM} install -g @react-grab/${AGENT} && PORT=${PORT} react-grab-${AGENT}"
+tmux send-keys -t ${AGENT}-react:0 "npm install -g @react-grab/${AGENT} && PORT=${PORT} react-grab-${AGENT}" C-m
+
 SLEEP_INFITY $0
 
 else
