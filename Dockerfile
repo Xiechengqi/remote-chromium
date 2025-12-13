@@ -58,7 +58,10 @@ ENV \
         YPROMPT_USERNAME="admin" \
         YPROMPT_PASSWORD="admin123" \
         IF_NPS_ON="false" \
-        IF_NPC_ON="false"
+        IF_NPC_ON="false" \
+        IF_CURSOR_REACT_GRAB_SERVER_ON="false" \
+        IF_CLAUDE_REACT_GRAB_SERVER_ON="false" \
+        IF_OPENCODE_REACT_GRAB_SERVER_ON="false"
 
 COPY app /app
 
