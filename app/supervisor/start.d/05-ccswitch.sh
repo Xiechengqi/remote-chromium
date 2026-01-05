@@ -31,10 +31,12 @@ done
 
 INFO "Installing CCSwitch ..."
 
+export VERSION="3.8.3"
+
 EXEC "mkdir -p /app/cc-switch"
 EXEC "cd /app/cc-switch"
-! ls CC-Switch-v3.8.2-Linux.deb &> /dev/null && EXEC "curl -SsL https://github.com/farion1231/cc-switch/releases/download/v3.8.2/CC-Switch-v3.8.2-Linux.deb -o CC-Switch-v3.8.2-Linux.deb" && INFO "[ok]"
-! dpkg -l | grep cc-switch &> /dev/null && INFO "apt install -y ./CC-Switch-v3.8.2-Linux.deb" && apt install -y ./CC-Switch-v3.8.2-Linux.deb && INFO "[ok]"
+! ls CC-Switch-v${VERSION}-Linux.deb &> /dev/null && EXEC "curl -SsL https://github.com/farion1231/cc-switch/releases/download/v${VERSION}/CC-Switch-v${VERSION}-Linux.deb -o CC-Switch-v${VERSION}-Linux.deb" && INFO "[ok]"
+! dpkg -l | grep cc-switch &> /dev/null && INFO "apt install -y ./CC-Switch-v${VERSION}-Linux.deb" && apt install -y ./CC-Switch-v${VERSION}-Linux.deb && INFO "[ok]"
 
 INFO "Starting CCSwitch ..."
 
