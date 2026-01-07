@@ -18,8 +18,8 @@ fi
 echo "${TERMINAL_ONCE}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --once"
 echo "${TERMINAL_ALERT}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --enable-idle-alert"
 source ~/.bashrc
-INFO "/app/gotty/gotty -w -p 2222 ${OPTS} /bin/bash"
-/app/gotty/gotty -w -p 2222 ${OPTS} /bin/bash
+INFO "/usr/local/bin/gotty -w -p 2222 ${OPTS} /bin/bash"
+/usr/local/bin/gotty -w -p 2222 ${OPTS} /bin/bash
 
 else
 SLEEP_INFITY $0

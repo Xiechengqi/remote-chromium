@@ -21,21 +21,30 @@ docker rm -f ${name}
 docker run -itd \
   --restart=always \
   --privileged \
+  -p 80:80 \
+  -p 443:443 \
   -p 2222:2222 \
+  -p 4567:4567 \
+  -p 5567:5567 \
+  -p 8567:8567 \
   -p 7700:7700 \
   -p 7800:7800 \
   -p 7900:7900 \
   -p 8000-8010:8000-8010 \
+  -p 8024:8024 \
+  -p 8081:8081 \
   -v ${PWD}/scripts:/app/scripts \
-  -v ${PWD}/user-data:/app/chromium/user-data \
   -v ${PWD}/projects:/app/projects \
   -v ${PWD}/.cc-switch:/root/.cc-switch \
   -v ${PWD}/.cursor:/root/.cursor \
   -v ${PWD}/.gemini:/root/.gemini \
   -v ${PWD}/.claude:/root/.claude \
   -v ${PWD}/.codex:/root/.codex \
+  -v ${PWD}/.opencode:/root/.opencode \
   -v ${PWD}/.gitconfig:/root/.gitconfig \
   -v ${PWD}/.jupyter:/root/.jupyter \
+  -v ${PWD}/.vibe-kanban:/root/.local/share/vibe-kanban \
+  -v ${PWD}/.nps:/app/nps/conf \
   -v /root/.ssh:/root/.ssh \
   -e LANG=C.UTF-8 \
   -e CHROMIUM_CLEAN_SINGLETONLOCK=true \

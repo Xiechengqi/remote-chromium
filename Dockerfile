@@ -62,7 +62,8 @@ ENV \
         IF_NPC_ON="false" \
         IF_CURSOR_REACT_GRAB_SERVER_ON="false" \
         IF_CLAUDE_REACT_GRAB_SERVER_ON="false" \
-        IF_OPENCODE_REACT_GRAB_SERVER_ON="false"
+        IF_OPENCODE_REACT_GRAB_SERVER_ON="false" \
+        IF_VIBE_KANBAN_ON="true"
 
 COPY app /app
 
@@ -77,8 +78,10 @@ RUN     apt update && \
         mkdir -p /etc/apt/keyrings && \
         curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | gpg --dearmor -o /etc/apt/keyrings/antigravity-repo-key.gpg && \
         echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" >> /etc/apt/sources.list.d/antigravity.list && \
+        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
+        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list && \
         apt update && \
-        apt install -y unzip lrzsz tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
+        apt install -y gh unzip lrzsz tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
         xvfb \
         openbox \
@@ -89,6 +92,7 @@ RUN     apt update && \
         antigravity && \
         curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
+        curl -SsL https://github.com/Xiechengqi/gotty/releases/download/latest/gotty-linux-amd64 -o /usr/local/bin/gotty && chmod +x /usr/local/bin/gotty && \
         echo 'source /app/scripts/.env' >> ~/.bashrc && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*
@@ -98,7 +102,7 @@ EXPOSE 2222
 # dufs
 EXPOSE 5000
 # novnc
-EXPOSE 7700 7800 7900
+EXPOSE 7600 7700 7800 7900
 
 WORKDIR /app
 
