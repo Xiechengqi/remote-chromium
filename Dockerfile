@@ -92,7 +92,6 @@ RUN     apt update && \
         antigravity && \
         curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
-        curl -SsL https://github.com/Xiechengqi/gotty/releases/download/latest/gotty-linux-amd64 -o /usr/local/bin/gotty && chmod +x /usr/local/bin/gotty && \
         echo 'source /app/scripts/.env' >> ~/.bashrc && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*

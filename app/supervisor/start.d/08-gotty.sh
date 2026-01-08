@@ -18,8 +18,9 @@ fi
 echo "${TERMINAL_ONCE}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --once"
 echo "${TERMINAL_ALERT}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --enable-idle-alert"
 source ~/.bashrc
-INFO "/usr/local/bin/gotty -w -p 2222 ${OPTS} /bin/bash"
-/usr/local/bin/gotty -w -p 2222 ${OPTS} /bin/bash
+uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "mv -v /app/gotty/gotty-arm64 /app/gotty/gotty"
+INFO "/app/gotty/gotty -w -p 2222 ${OPTS} /bin/bash"
+/app/gotty/gotty -w -p 2222 ${OPTS} /bin/bash
 
 else
 SLEEP_INFITY $0

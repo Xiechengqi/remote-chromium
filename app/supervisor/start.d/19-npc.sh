@@ -14,6 +14,7 @@ done
 
 if [ ".${localVerifyKey}" != "." ]
 then
+uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "mv -v /app/npc/npc-arm64 /app/npc/npc"
 INFO "/app/npc/npc -server=localhost:8024 -vkey=${localVerifyKey} -type=tcp"
 /app/npc/npc -server=localhost:8024 -vkey=${localVerifyKey} -type=tcp
 fi

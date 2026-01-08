@@ -7,6 +7,7 @@ then
 
 EXEC "mkdir -p /etc/nps"
 EXEC "ln -fs /app/nps/web /etc/nps/web"
+uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "mv -v /app/nps/nps-arm64 /app/nps/nps"
 INFO "/app/nps/nps"
 /app/nps/nps
 
