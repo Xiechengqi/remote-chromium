@@ -7,7 +7,7 @@ source ~/.bashrc
 if [ "${IF_GOLANG_ON}" = "true" ]
 then
 
-uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "mv -v /app/golang/go1.25.4.linux-arm64.tar.gz /app/golang/go1.25.4.linux.tar.gz"
+uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "cp -f -v /app/golang/go1.25.4.linux-arm64.tar.gz /app/golang/go1.25.4.linux.tar.gz"
 INFO "tar zxvf /app/golang/go1.25.4.linux.tar.gz --strip-components 1 -C /app/golang/"
 tar zxvf /app/golang/go1.25.4.linux.tar.gz --strip-components 1 -C /app/golang/
 INFO "rm -f /app/golang/go1.25.4.linux.tar.gz /app/golang/go1.25.4.linux-arm64.tar.gz"

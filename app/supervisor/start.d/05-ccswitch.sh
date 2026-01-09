@@ -33,7 +33,7 @@ INFO "Installing CCSwitch ..."
 
 EXEC "mkdir -p /app/cc-switch"
 EXEC "cd /app/cc-switch"
-uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "mv -v CC-Switch-Linux-arm64.deb CC-Switch-Linux.deb"
+uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "cp -f -v CC-Switch-Linux-arm64.deb CC-Switch-Linux.deb"
 INFO "apt install -y ./CC-Switch-Linux.deb" && apt install -y ./CC-Switch-Linux.deb && INFO "[ok]"
 
 INFO "Starting CCSwitch ..."
