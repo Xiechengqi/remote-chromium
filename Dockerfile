@@ -2,21 +2,18 @@ FROM ubuntu:24.04
 
 LABEL maintainer="xiechengqi01@gmail.com" \
       version="1.0" \
-      description="Ubuntu with Chrome and NoVNC"
+      description="Ubuntu with Chrome and KasmVNC"
 
 USER root
 
-# vnc
-# novnc
+# kasmvnc
 # chromium
 # antigravity
 # gotty
 ENV \
 	VNC_RESOLUTION="1920x1080" \
 	NOVNC_VIEW_ONLY="false" \
-        NOVNC_WEB_INDEX="/app/index" \
-	CHROMIUM_DISPLAY=:0 \
-	CHROMIUM_VNC_PORT="5900" \
+	CHROMIUM_DISPLAY=:10 \
 	CHROMIUM_NOVNC_PORT="7900" \
 	CHROMIUM_NOVNC_PASSWORD="" \
         CHROMIUM_NOVNC_TITLE="Chromium" \
@@ -25,17 +22,15 @@ ENV \
 	CHROMIUM_REMOTE_DEBUGGING_PORT="9222" \
 	CHROMIUM_START_URLS="chrome://version,http://localhost:5000" \
 	CHROMIUM_LANG="en-US" \
-	CHROMIUM_LOAD_EXTENSION="" \
+        CHROMIUM_LOAD_EXTENSION="" \
         CHROMIUM_PROXY_SERVER="" \
         IF_IDE_ON="false" \
-        IDE_DISPLAY=:1 \
-        IDE_VNC_PORT="5800" \
+        IDE_DISPLAY=:11 \
         IDE_NOVNC_PORT="7800" \
         IDE_NOVNC_PASSWORD="" \
         IDE_NOVNC_TITLE="Antigravity" \
         IF_CCSWITCH_ON="true" \
-        CCSWITCH_DISPLAY=:2 \
-        CCSWITCH_VNC_PORT="5700" \
+        CCSWITCH_DISPLAY=:12 \
         CCSWITCH_NOVNC_PORT="7700" \
         CCSWITCH_NOVNC_PASSWORD="" \
         CCSWITCH_NOVNC_TITLE="CCSwitch" \
@@ -83,10 +78,7 @@ RUN     apt update && \
         apt update && \
         apt install -y gh unzip lrzsz tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
-        xvfb \
         openbox \
-        x11vnc \
-        websockify \
         libpcre3-dev libssl-dev zlib1g-dev libgd-dev \
         chromium chromium-driver \
         antigravity && \
@@ -100,7 +92,7 @@ RUN     apt update && \
 EXPOSE 2222
 # dufs
 EXPOSE 5000
-# novnc
+# kasmvnc web
 EXPOSE 7600 7700 7800 7900
 
 WORKDIR /app

@@ -10,7 +10,10 @@ docker rm -f ${name}
 ## terminal port
 # -p 2222:2222 \
 ## env
-# -e NOVNC_PASSWORD="123123"
+# -e CHROMIUM_NOVNC_PASSWORD="123123"
+# -e IDE_NOVNC_PASSWORD="123123"
+# -e CCSWITCH_NOVNC_PASSWORD="123123"
+# -e NOVNC_VIEW_ONLY="false"
 # -e TERMINAL_USER="admin"
 # -e TERMINAL_PASSWORD="123123"
 # -e TERMINAL_PROXY=socks5://localhost:1080 \

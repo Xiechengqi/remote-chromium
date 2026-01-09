@@ -1,2 +1,2 @@
-# chromium-novnc
-ubuntu24 chromium novnc
+# remote-chromium (KasmVNC)
+ubuntu24 chromium + KasmVNC web remote desktop

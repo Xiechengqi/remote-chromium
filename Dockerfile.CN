@@ -2,22 +2,19 @@ FROM ubuntu:24.04
 
 LABEL maintainer="xiechengqi01@gmail.com" \
       version="1.0" \
-      description="Ubuntu with Chrome and NoVNC"
+      description="Ubuntu with Chrome and KasmVNC"
 
 USER root
 
-# vnc resolution
-# novnc
+# kasmvnc
 # gotty
 # chromium
 ENV \
 	DISPLAY=:0 \
 	VNC_RESOLUTION="1920x1080" \
-	VNC_PORT="5900" \
 	NOVNC_PASSWORD="" \
 	NOVNC_VIEW_ONLY="false" \
 	NOVNC_TITLE="Chromium" \
-	NOVNC_WEB_INDEX="/app/index" \
 	NOVNC_PORT="7900" \
 	CHROMIUM_CLEAN_SINGLETONLOCK="false" \
 	CHROMIUM_USER_DATA_DIR="/app/chromium/user-data" \
@@ -55,10 +52,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
         add-apt-repository ppa:xtradeb/apps -y && \
         apt install -y sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates curl wget htop net-tools vnstat screen tmux git build-essential \
         supervisor \
-        xvfb \
         openbox \
-        x11vnc \
-        websockify \
         libpcre3-dev libssl-dev zlib1g-dev libgd-dev \
         chromium chromium-driver && \
         UV_INSTALLER_GITHUB_BASE_URL=https://gh-proxy.com/https://github.com curl -LsSf https://astral.sh/uv/install.sh | sh && \
@@ -72,7 +66,7 @@ RUN     rm -f /etc/apt/sources.list.d/ubuntu.sources && \
 EXPOSE 2222
 # dufs
 EXPOSE 5000
-# novnc
+# kasmvnc web
 EXPOSE ${NOVNC_PORT}
 
 WORKDIR /app
