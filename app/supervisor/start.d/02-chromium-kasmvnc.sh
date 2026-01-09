@@ -39,6 +39,21 @@ command -v vncpasswd &> /dev/null || ERROR "vncpasswd not found after install"
 export HOME="/app/kasmvnc/${SESSION_NAME}"
 mkdir -p "${HOME}/.vnc"
 
+# Skip desktop environment selection prompt
+touch "${HOME}/.vnc/.de-was-selected"
+
+# Configure kasmvnc to skip STUN query (avoid network timeout)
+cat > "${HOME}/.vnc/kasmvnc.yaml" << 'YAML'
+logging:
+  log_writer_name: all
+  log_dest: logfile
+  level: 100
+
+network:
+  udp:
+    public_ip: 127.0.0.1
+YAML
+
 # Setup user/password and permissions (default is view-only)
 VNC_PASS_OPTS=""
 [ "${VIEW_ONLY}" = "true" ] || VNC_PASS_OPTS="-w"
@@ -55,7 +70,8 @@ INFO "  DISPLAY=${DISPLAY}"
 INFO "  WEB_PORT=${WEB_PORT}"
 INFO "  VIEW_ONLY=${VIEW_ONLY}"
 
-exec vncserver "${DISPLAY}" \
+# Start vncserver in background and wait for Xvnc process
+vncserver "${DISPLAY}" \
   -fg \
   -noxstartup \
   -ac \
@@ -64,4 +80,18 @@ exec vncserver "${DISPLAY}" \
   -websocketPort "${WEB_PORT}" \
   -FrameRate="${KASMVNC_FRAME_RATE}" \
   -interface "${KASMVNC_INTERFACE}" \
-  -httpd "${KASMVNC_HTTPD_DIR}"
+  -httpd "${KASMVNC_HTTPD_DIR}" &
+
+# Wait for Xvnc to start and keep script running
+sleep 2
+XVNC_PID=$(pgrep -f "Xvnc ${DISPLAY}" | head -1)
+if [ -n "${XVNC_PID}" ]; then
+  INFO "Xvnc started with PID ${XVNC_PID}"
+  # Wait for Xvnc process to exit
+  while kill -0 "${XVNC_PID}" 2>/dev/null; do
+    sleep 5
+  done
+  ERROR "Xvnc process ${XVNC_PID} exited"
+else
+  ERROR "Failed to start Xvnc"
+fi
