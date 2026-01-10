@@ -54,6 +54,28 @@ network:
     public_ip: 127.0.0.1
 YAML
 
+# Set web client default settings (IME enabled, Remote Resizing mode)
+KASMVNC_DEFAULTS_JS="${KASMVNC_HTTPD_DIR}/kasmvnc-defaults.js"
+if [ ! -f "${KASMVNC_DEFAULTS_JS}" ]; then
+  cat > "${KASMVNC_DEFAULTS_JS}" << 'JS'
+(function() {
+  var defaults = {
+    'enable_ime': true,
+    'resize': 'remote'
+  };
+  for (var key in defaults) {
+    if (localStorage.getItem(key) === null) {
+      localStorage.setItem(key, JSON.stringify(defaults[key]));
+    }
+  }
+})();
+JS
+  # Inject script into vnc.html if not already present
+  if ! grep -q 'kasmvnc-defaults.js' "${KASMVNC_HTTPD_DIR}/vnc.html"; then
+    sed -i 's|</head>|<script src="./kasmvnc-defaults.js"></script></head>|' "${KASMVNC_HTTPD_DIR}/vnc.html"
+  fi
+fi
+
 # Setup user/password and permissions (default is view-only)
 VNC_PASS_OPTS=""
 [ "${VIEW_ONLY}" = "true" ] || VNC_PASS_OPTS="-w"

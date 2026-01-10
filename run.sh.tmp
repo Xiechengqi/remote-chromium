@@ -38,6 +38,7 @@ docker run -itd \
   -p 8081:8081 \
   -v ${PWD}/scripts:/app/scripts \
   -v ${PWD}/projects:/app/projects \
+  -v ${PWD}/.chromium:/app/chromium/user-data \
   -v ${PWD}/.cc-switch:/root/.cc-switch \
   -v ${PWD}/.cursor:/root/.cursor \
   -v ${PWD}/.gemini:/root/.gemini \
