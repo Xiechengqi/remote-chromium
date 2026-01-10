@@ -9,4 +9,15 @@ then
   SLEEP_INFITY $0
 fi
 
-DISPLAY=${CCSWITCH_DISPLAY} openbox-session
+source /app/supervisor/start.d/common.sh
+
+export DISPLAY="${CCSWITCH_DISPLAY}"
+
+# 等待 X11 Display 就绪
+while ! xdpyinfo -display "${DISPLAY}" &>/dev/null
+do
+  INFO "Waiting for CCSwitch X server..."
+  EXEC "sleep 1"
+done
+
+openbox-session
