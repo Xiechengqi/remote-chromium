@@ -48,6 +48,7 @@ ENV \
         IF_GEMINI_CLI_ON="true" \
         IF_CODEX_CLI_ON="true" \
         IF_CLAUDE_CLI_ON="true" \
+        IF_OPENCODE_CLI_ON="true" \
         IF_GOLANG_ON="true" \
         IF_NODEJS_ON="true" \
         IF_JUPYTER_ON="true" \
