@@ -57,6 +57,8 @@ logging:
 network:
   udp:
     public_ip: 127.0.0.1
+  ssl:
+    require_ssl: false        # 关闭强制 HTTPS
 YAML
 
 # Set web client default settings (IME enabled, Remote Resizing mode)
