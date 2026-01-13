@@ -17,6 +17,7 @@ fi
 [ ".${TERMINAL_USER}" != "." ] && [ ".${TERMINAL_PASSWORD}" != "." ] && OPTS="-c ${TERMINAL_USER}:${TERMINAL_PASSWORD}"
 echo "${TERMINAL_ONCE}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --once"
 echo "${TERMINAL_ALERT}" | grep -i '^true$' &> /dev/null && OPTS="${OPTS} --enable-idle-alert"
+[ "${IF_SHERPA_ONNX_ON}" = "true" ] && OPTS="${OPTS} --enable-asr --asr-backend ws://127.0.0.1:6006"
 source ~/.bashrc
 uname -m | grep -E 'arm64|aarch64' &> /dev/null && EXEC "cp -f -v /app/gotty/gotty-arm64 /app/gotty/gotty"
 INFO "/app/gotty/gotty -w -p 2222 ${OPTS} /bin/bash"
