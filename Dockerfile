@@ -34,6 +34,7 @@ ENV \
         CCSWITCH_NOVNC_PORT="7700" \
         CCSWITCH_NOVNC_PASSWORD="" \
         CCSWITCH_NOVNC_TITLE="CCSwitch" \
+        IF_SHERPA_ONNX_ON="true" \
         IF_TERMINAL_ON="true" \
         TERMINAL_USER="" \
         TERMINAL_PASSWORD="" \
@@ -76,14 +77,16 @@ RUN     apt update && \
         curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /etc/apt/keyrings/githubcli-archive-keyring.gpg && \
         echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list && \
         apt update && \
-        apt install -y gh unzip lrzsz tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential \
+        apt install -y gh unzip lrzsz tree sshpass telnet net-tools iproute2 iputils-ping jq ca-certificates wget htop net-tools vnstat screen tmux git build-essential pkg-config \
         supervisor \
         openbox \
         libpcre3-dev libssl-dev zlib1g-dev libgd-dev \
         chromium chromium-driver \
         antigravity && \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
         curl -LsSf https://astral.sh/uv/install.sh | sh && \
         curl -SsL https://raw.githubusercontent.com/Xiechengqi/scripts/refs/heads/master/install/Agent/agent -o /usr/local/bin/agent && chmod +x /usr/local/bin/agent && \
+        git clone https://github.com/k2-fsa/sherpa-onnx.git /app/sherpa-onnx && cd /app/sherpa-onnx && curl -SsL https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2 -o sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2 && tar xf sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20.tar.bz2 && cd - && \
         echo 'source /app/scripts/.env' >> ~/.bashrc && \
         mkdir -p /app/logs && \
         rm -rf /var/cache/apt/* /tmp/*

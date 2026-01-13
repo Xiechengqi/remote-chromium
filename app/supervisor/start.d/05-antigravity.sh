@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Antigravity IDE (DISPLAY :1)
+# Antigravity IDE
 # ============================================================================
 
 source /app/supervisor/start.d/common.sh
