@@ -60,7 +60,8 @@ ENV \
         IF_CURSOR_REACT_GRAB_SERVER_ON="false" \
         IF_CLAUDE_REACT_GRAB_SERVER_ON="false" \
         IF_OPENCODE_REACT_GRAB_SERVER_ON="false" \
-        IF_VIBE_KANBAN_ON="true"
+        IF_VIBE_KANBAN_ON="false" \
+        IF_AGENT_BROWSER_ON="true"
 
 COPY app /app
 
