@@ -13,9 +13,9 @@ INFO "check \${NVM_DIR}/versions/node/v*/bin/npm" && ! ls ${NVM_DIR}/versions/no
 break
 done
 
-INFO "npm -v && npm install -g @anthropic-ai/claude-code" && npm -v && npm install -g @anthropic-ai/claude-code
 INFO "tmux new-session -s claude -d" && tmux new-session -s claude -d 
-tmux send-keys -t claude:0 'ls ~/.claude/.claude.json && cp -f -v ~/.claude/.claude.json ~/; while : ;do cp -f -v ~/.claude.json ~/.claude/.claude.json; sleep 1m; done' C-m
+INFO "npm -v && npm install -g @anthropic-ai/claude-code"
+tmux send-keys -t claude:0 'npm -v && npm install -g @anthropic-ai/claude-code && ls ~/.claude/.claude.json && cp -f -v ~/.claude/.claude.json ~/; while : ;do cp -f -v ~/.claude.json ~/.claude/.claude.json; sleep 1m; done' C-m
 SLEEP_INFITY $0
 
 else
